@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+/* Main theme */
+body.main-theme {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+/* Dashboard theme */
+body.dashboard-theme {
+  background: white;
+  color: black;
+}
+
+/* ✅ Dark mode for dashboard */
+html.dark body.dashboard-theme {
+  background: #111827;
+  color: #ededed;
+}
