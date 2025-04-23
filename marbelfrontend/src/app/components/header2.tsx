@@ -16,7 +16,6 @@ interface Category {
   categorie_slug: string;
 }
 
-
 export function Header2() {
   const pathname = usePathname();
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -29,9 +28,9 @@ export function Header2() {
     { name: "Products", href: "/products" },
     { name: "Buying Requests", href: "/request" },
     { name: "Slab In Stock", href: "/slabs" },
+    { name: "Blogs", href: "/blogs" },
   ];
 
-  // ✅ Fetch categories from Laravel API (expects data inside 'data')
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -46,11 +45,11 @@ export function Header2() {
   }, []);
 
   return (
-    <header className="flex items-center justify-between p-3 border-b bg-[#baffaad2] text-[#333333] relative">
-
+    <header className="flex items-center justify-between px-4 py-1 border-b border-slate-700 bg-slate-800 text-white sticky top-0 z-10 shadow-md">
+      
       {/* Category Dropdown */}
       <div
-        className="relative cursor-pointer"
+        className="relative cursor-pointer select-none"
         onMouseEnter={() => !isPermanent && setDropdownOpen(true)}
         onMouseLeave={() => !isPermanent && setDropdownOpen(false)}
         onClick={() => {
@@ -63,30 +62,29 @@ export function Header2() {
           }
         }}
       >
-        <div className="flex items-center gap-2">
-          <i className="bi bi-list"></i> Categories
-          <i className={`bi ${dropdownOpen ? "bi-chevron-up" : "bi-chevron-down"} text-sm transition-transform duration-200`}></i>
+        <div className="flex items-center gap-2 hover:text-yellow-300 transition-colors duration-200">
+          <i className="bi bi-list text-lg"></i> Categories
+          <i className={`bi ${dropdownOpen ? "bi-chevron-up" : "bi-chevron-down"} text-sm transition-transform duration-200`} />
         </div>
 
         {dropdownOpen && (
-          <div className="absolute left-0 z-10 top-full mt-2 w-56 bg-white shadow-lg border rounded">
+          <div className="absolute left-0 z-10 top-full mt-2 w-60 bg-white text-black shadow-xl border border-gray-300 rounded-md overflow-hidden transition-all duration-200">
             {categories.map((category) => (
               <Link
                 key={category.id}
                 href={`/products?category_id=${category.id}`}
-                className="block px-4 py-2 hover:bg-gray-200"
+                className="block px-4 py-2 hover:bg-gray-100 transition-colors duration-150"
               >
                 {category.categorie_name}
               </Link>
             ))}
-
           </div>
         )}
       </div>
 
       {/* Mobile Menu Toggle */}
       <div className="md:hidden">
-        <button onClick={() => setMenuOpen(!menuOpen)}>
+        <button onClick={() => setMenuOpen(!menuOpen)} className="text-white hover:text-yellow-300 transition-colors duration-200">
           <i className={`bi ${menuOpen ? "bi-x-lg" : "bi-list"} text-2xl`}></i>
         </button>
       </div>
@@ -97,7 +95,11 @@ export function Header2() {
           <Link
             key={index}
             href={link.href}
-            className={pathname === link.href ? "font-bold underline" : "text-[#333333] hover:text-blue-600"}
+            className={`transition-colors duration-200 ${
+              pathname === link.href
+                ? "font-semibold underline text-yellow-400"
+                : "hover:text-yellow-300"
+            }`}
           >
             {link.name}
           </Link>
@@ -111,7 +113,7 @@ export function Header2() {
             <Link
               key={index}
               href={link.href}
-              className="block w-full text-center py-2 border-b hover:bg-gray-200"
+              className="block w-full text-center py-2 border-b border-slate-300 hover:bg-yellow-200 transition-colors"
               onClick={() => setMenuOpen(false)}
             >
               {link.name}
@@ -121,7 +123,10 @@ export function Header2() {
       )}
 
       {/* Enquiry Button */}
-      <Link href="/enquiry" className="bg-[#394246] hover:bg-[#202a2d] text-white text-center py-1 w-32 rounded">
+      <Link
+        href="/enquiry"
+        className="bg-yellow-400 hover:bg-yellow-500 text-black text-center py-2 w-32 rounded-md font-medium transition-colors duration-200"
+      >
         Enquire Now
       </Link>
     </header>

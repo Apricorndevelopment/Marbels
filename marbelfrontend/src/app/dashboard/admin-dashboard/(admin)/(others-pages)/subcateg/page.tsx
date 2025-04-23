@@ -44,7 +44,7 @@ const SubcategoryPage = () => {
       <PageBreadcrumb pageTitle="Add Subcategory" />
       <h1 className='text-xl mb-4 font-bold'>Manage Subcategory</h1>
       <Link href="/dashboard/admin-dashboard/subcateg/add-subcateg">
-        <button className='bg-green-600 text-white py-2 px-5 text-xl'>Add Sub Category</button>
+        <button className='bg-green-500 hover:bg-green-700 text-white py-2 px-4 rounded-lg text-xl transition duration-200'>Add Sub Category</button>
       </Link>
 
       <div className="mt-8 overflow-x-auto">

@@ -13,7 +13,7 @@ export default function Home() {
 
   return (
     <>
-      <div className="cont1 flex mt-4 gap-4 sm:gap-16 xl:gap-5 lg:gap-7">
+      <div className="cont1 flex pt-4 pb-10 gap-4 sm:gap-16 xl:gap-5 lg:gap-7 bg-white border shadow-xl">
         <Sidebar setActiveMarket={setActiveMarket} />
 
         <div className="flex gap-0 xl:gap-5 flex-wrap relative">
@@ -28,7 +28,6 @@ export default function Home() {
           </div>
 
           <div className="px-6 relative">
-           
                 <h4 className="mt-3">Sponsors</h4>
                 <div className="flex flex-col sm:flex-row lg:flex-col gap-3 justify-center py-4">
                   <Image src="/mar_pics/marbel3.jpg" alt="Logo" width={170} height={170} />
@@ -38,7 +37,7 @@ export default function Home() {
               
           </div>
           {activeMarket && (
-              <div className="absolute inset-0 bg-gray-50 flex flex-col px-6 py-4">
+              <div className="absolute inset-0 bg-yellow-50 flex flex-col px-6 py-4 mb-4">
                 <h4 className="text-3xl font-bold mb-6">Categories</h4>
                 <ul className="list-disc text-lg space-y-3 grid grid-cols-2 md:grid-cols-3 gap-6 px-8">
                   {activeMarket.map((item, index) => (

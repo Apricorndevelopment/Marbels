@@ -14,10 +14,10 @@ const AddSubcategory = () => {
   const [subSlug, setSubSlug] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    // Fetch all categories for the select input
     const fetchCategories = async () => {
       try {
         const res = await fetch("http://127.0.0.1:8000/api/categories");
@@ -34,19 +34,18 @@ const AddSubcategory = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const newSubcategory = {
-      subcategorie_name: subName,
-      subcategorie_slug: subSlug,
-      category_id: parseInt(categoryId),
-    };
+    const formData = new FormData();
+    formData.append("subcategorie_name", subName);
+    formData.append("subcategorie_slug", subSlug);
+    formData.append("category_id", categoryId);
+    if (selectedImage) {
+      formData.append("image", selectedImage);
+    }
 
     try {
       const res = await fetch("http://127.0.0.1:8000/api/subcategories", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(newSubcategory),
+        body: formData,
       });
 
       if (res.ok) {
@@ -62,9 +61,9 @@ const AddSubcategory = () => {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh]">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full h-[90vh] overflow-y-auto">
         <Link href="/dashboard/admin-dashboard/subcateg">
-          <button className="bg-green-500 text-white py-2 px-5 text-xl">Go Back</button>
+          <button className="bg-green-500 text-white py-2 px-5 text-xl mb-4">Go Back</button>
         </Link>
         <h1 className="text-2xl font-bold mb-4 text-center">Add Subcategory</h1>
         <form onSubmit={handleSubmit} className="space-y-7">
@@ -103,6 +102,28 @@ const AddSubcategory = () => {
                 </option>
               ))}
             </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Subcategory Image:</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                if (e.target.files && e.target.files[0]) {
+                  setSelectedImage(e.target.files[0]);
+                }
+              }}
+              className="w-full p-2 mt-2 border rounded-md"
+            />
+            {selectedImage && (
+              <div className="mt-2">
+                <img
+                  src={URL.createObjectURL(selectedImage)}
+                  alt="Preview"
+                  className="h-32 object-cover rounded"
+                />
+              </div>
+            )}
           </div>
           <button
             type="submit"

@@ -52,7 +52,7 @@ const Products = () => {
       <h1 className="text-2xl font-bold mb-4">Product Section</h1>
 
       <Link href="/dashboard/admin-dashboard/products/add-product">
-        <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
+        <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200">
           Add Product
         </button>
       </Link>

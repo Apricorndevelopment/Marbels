@@ -50,6 +50,11 @@ const navItems: NavItem[] = [
   },
   {
     icon: <PlusCircleIcon />,
+    name: "Add Blogs",
+    path: "/dashboard/admin-dashboard/blog",
+  },
+  {
+    icon: <PlusCircleIcon />,
     name: "Add Category",
     path: "/dashboard/admin-dashboard/category",
   },
