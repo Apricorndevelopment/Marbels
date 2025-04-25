@@ -9,8 +9,16 @@ class CategoryController extends Controller
 {
     public function index()
     {
-        return Category::all();
+        $categories = Category::all();
+    
+        // Append full image URL to each category
+        foreach ($categories as $cat) {
+            $cat->image_url = $cat->image ? asset('uploads/categories/' . $cat->image) : null;
+        }
+    
+        return response()->json($categories, 200);
     }
+    
 
     public function store(Request $request)
     {

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { Req } from "../components/buyingreq";
+import { Counter } from "../components/counterup";
 
 interface Enquiry {
   name: string;
@@ -31,13 +32,13 @@ export default function Request() {
             <div className="flex gap-2 sm:gap-4 items-center">
               <i className="bi bi-journal-arrow-up text-4xl border-[1.5px] border-black rounded-full p-3"></i>
               <h1>
-                30000 + <br /> Requests
+                <Counter end={30000} /> + <br /> Requests
               </h1>
             </div>
             <div className="flex gap-4 items-center">
               <i className="bi bi-basket text-4xl border-[1.5px] border-black rounded-full p-3"></i>
               <h1>
-                42000 + <br /> Products
+              <Counter end={42000} /> + <br /> Products
               </h1>
             </div>
           </div>
@@ -80,7 +81,7 @@ export default function Request() {
       </div>
 
       {enquiries.length === 0 ? (
-        <p>No enquiries available yet.</p>
+        <p className="p-4">No enquiries available yet.</p>
       ) : (
         enquiries.map((enquiry, index) => <Req key={index} req={enquiry} />)
       )}

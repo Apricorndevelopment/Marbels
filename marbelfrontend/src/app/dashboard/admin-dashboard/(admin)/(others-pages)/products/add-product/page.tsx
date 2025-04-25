@@ -5,16 +5,16 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
 
-interface Subcategory {
-  id: number;
-  subcategorie_name: string;
-}
-
 interface Category {
   id: number;
   categorie_name: string;
 }
 
+interface Subcategory {
+  id: number;
+  subcategorie_name: string;
+  category_id: number;
+}
 
 const AddProduct = () => {
   const [name, setName] = useState("");
@@ -22,14 +22,16 @@ const AddProduct = () => {
   const [images, setImages] = useState<File[]>([]);
   const [imageInputs, setImageInputs] = useState<number[]>([Date.now()]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [categoryId, setCategoryId] = useState("");
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
+  const [categoryId, setCategoryId] = useState("");
   const [subcategoryId, setSubcategoryId] = useState("");
   const [color, setColor] = useState("");
   const [materialType, setMaterialType] = useState("");
   const [description, setDescription] = useState("");
   // const [keywords, setKeywords] = useState("");
   // const [tax, setTax] = useState("");
+  const [isPopular, setIsPopular] = useState<"1" | "0" | "">("");
   const [materialOrigin, setMaterialOrigin] = useState("");
   const [provinceCity, setProvinceCity] = useState("");
   const [order, setOrder] = useState("");
@@ -70,6 +72,15 @@ const AddProduct = () => {
     fetchSubcategories();
   }, []);
 
+  useEffect(() => {
+    if (categoryId) {
+      const filtered = subcategories.filter((sub) => sub.category_id.toString() === categoryId);
+      setFilteredSubcategories(filtered);
+    } else {
+      setFilteredSubcategories([]);
+    }
+    setSubcategoryId(""); // reset subcategory when category changes
+  }, [categoryId, subcategories]);
 
   const router = useRouter();
 
@@ -106,6 +117,7 @@ const AddProduct = () => {
     formData.append("min_order", order.toString());
     formData.append("material_origin", materialOrigin);
     formData.append("province_city", provinceCity);
+    formData.append("is_popular", isPopular);
     // formData.append("keywords", keywords);
     // formData.append("tax", tax);
 
@@ -275,7 +287,6 @@ const AddProduct = () => {
             </div>
           </div>
 
-          {/* ✅ NEW: Product Video */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Video URL:</label>
             <input
@@ -311,16 +322,16 @@ const AddProduct = () => {
               onChange={(e) => setSubcategoryId(e.target.value)}
               required
               className="w-full mt-2 p-2 border rounded-md"
+              disabled={!categoryId}
             >
               <option value="">Select a subcategory</option>
-              {subcategories.map((subcat) => (
+              {filteredSubcategories.map((subcat) => (
                 <option key={subcat.id} value={subcat.id}>
                   {subcat.subcategorie_name}
                 </option>
               ))}
             </select>
           </div>
-
 
           <div className="my-7 w-full max-w-5xl mx-auto">
             <label className="block text-sm font-semibold text-gray-700 mb-2">Color:</label>
@@ -348,8 +359,8 @@ const AddProduct = () => {
             <label className="block text-sm font-semibold text-gray-700 mb-2">Material Type:</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
-                "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Slate", "Travertine",
-                "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Tuff", "Felsite",
+                "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Quartz", "Travertine",
+                "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Terrazo", "Felsite",
                 "Conglomerate", "Rhyolite", "Gypsum", "Andesite"
               ].map((item) => (
                 <label key={item} className="flex items-center space-x-2">
@@ -398,6 +409,20 @@ const AddProduct = () => {
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Is Popular:</label>
+            <select
+              className="w-full p-2 border rounded-md"
+              value={isPopular}
+              onChange={(e) => setIsPopular(e.target.value as "1" | "0" | "")}
+              name="is_popular"
+              required>
+              <option value="">Select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
           </div>
 
 

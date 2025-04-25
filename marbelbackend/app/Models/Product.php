@@ -23,7 +23,8 @@ class Product extends Model
         'province_city',
         'grade',
         'subcategory_id',
-        'category_id'
+        'category_id',
+        'is_popular',
     ];
 
     public function images()

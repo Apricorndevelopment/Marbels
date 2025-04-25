@@ -11,13 +11,16 @@ use Illuminate\Support\Facades\Validator;
 
 class ProductController extends Controller
 {
-
     public function index(Request $request)
     {
         $query = Product::with(['images', 'subcategory']);
 
         if ($request->has('category_id')) {
             $query->where('category_id', $request->category_id);
+        }
+
+        if ($request->has('color')) {
+            $query->where('color', $request->color);
         }
 
         $products = $query->get();
@@ -45,7 +48,8 @@ class ProductController extends Controller
             'province_city' => 'nullable|string',
             'grade' => 'nullable|string',
             'subcategory_id' => 'required|exists:subcategories,id',
-            'category_id' => 'required|exists:categories,id'
+            'category_id' => 'required|exists:categories,id',
+            'is_popular' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -99,6 +103,7 @@ class ProductController extends Controller
             'grade' => 'nullable|string',
             'subcategory_id' => 'sometimes|exists:subcategories,id',
             'category_id' => 'sometimes|exists:categories,id',
+            'is_popular' => 'nullable|string',
         ]);
 
         if ($validator->fails()) {
@@ -137,4 +142,17 @@ class ProductController extends Controller
 
         return response()->json(['message' => 'Product deleted successfully']);
     }
+
+    public function popular()
+    {
+        return Product::where('is_popular', 1)->get();
+    }
+
+    public function getByColor($color)
+    {
+        $products = Product::where('color', $color)->get();
+        return response()->json($products);
+    }
+
+
 }

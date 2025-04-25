@@ -1,7 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   webpack(config) {
     config.module.rules.push({
       test: /\.svg$/,
@@ -15,6 +14,12 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: '127.0.0.1',
         port: '8000',
+        pathname: '/uploads/**',
+      },
+      {
+        protocol: 'http',
+        hostname: '127.0.0.1',
+        port: '8000',
         pathname: '/storage/**',
       },
     ],
@@ -22,8 +27,8 @@ const nextConfig: NextConfig = {
   // async rewrites() {
   //   return [
   //     {
-  //       source: "/dashboard/:path*",  // Jo bhi /dashboard ke baad aaye
-  //       destination: "/dashboard/admin-dashboard/:path*", // Usko internally /dashboard-app me bhej do
+  //       source: "/dashboard/:path*",
+  //       destination: "/dashboard/admin-dashboard/:path*",
   //     },
   //   ];
   // },

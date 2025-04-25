@@ -32,10 +32,14 @@ Route::post('/subcategories', [SubCategoryController::class, 'store']);
 Route::get('/subcategories/{id}', [SubCategoryController::class, 'show']);
 Route::put('/subcategories/{id}', [SubCategoryController::class, 'update']);
 Route::delete('/subcategories/{id}', [SubCategoryController::class, 'destroy']);
+Route::get('/subcategories/by-category/{categoryId}', [SubcategoryController::class, 'getByCategory']);
+
 // product api routes------------
 Route::prefix('products')->group(function () {
 
     Route::get('/', [ProductController::class, 'index']);
+    Route::get('popular', [ProductController::class, 'popular']);
+    Route::get('color/{color}', [ProductController::class, 'getByColor']);
     Route::post('/', [ProductController::class, 'store']);
     Route::get('{id}', [ProductController::class, 'show']);
     Route::put('{id}', [ProductController::class, 'update']);

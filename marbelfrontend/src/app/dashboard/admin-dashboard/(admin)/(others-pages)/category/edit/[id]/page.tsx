@@ -1,18 +1,20 @@
-// src/app/dashboard/admin-dashboard/category/edit/[id]/page.tsx
-
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import Link from "next/link";
 
 const EditCategoryPage = () => {
   const { id } = useParams();
   const router = useRouter();
+
   const [formData, setFormData] = useState({
     categorie_name: "",
     categorie_slug: "",
   });
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [existingImageUrl, setExistingImageUrl] = useState<string>("");
 
   useEffect(() => {
     const fetchCategory = async () => {
@@ -22,6 +24,10 @@ const EditCategoryPage = () => {
           categorie_name: res.data.categorie_name,
           categorie_slug: res.data.categorie_slug,
         });
+
+        if (res.data.image) {
+          setExistingImageUrl(`http://127.0.0.1:8000/uploads/categories/${res.data.image}`);
+        }
       } catch (error) {
         console.error("Error fetching category:", error);
       }
@@ -34,19 +40,43 @@ const EditCategoryPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const data = new FormData();
+    data.append("categorie_name", formData.categorie_name);
+    data.append("categorie_slug", formData.categorie_slug);
+    if (selectedImage) {
+      data.append("image", selectedImage);
+    }
+
     try {
-      await axios.put(`http://127.0.0.1:8000/api/categories/${id}`, formData);
+      await axios.post(`http://127.0.0.1:8000/api/categories/${id}?_method=PUT`, data, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       alert("Category updated successfully!");
       router.push("/dashboard/admin-dashboard/category");
     } catch (error) {
       console.error("Update failed:", error);
+      alert("Update failed.");
     }
   };
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
+    <div className="p-8">
+      <Link href="/dashboard/admin-dashboard/category">
+        <button className="bg-green-600 text-white px-4 py-2 rounded mb-4">
+          Go Back
+        </button>
+      </Link>
       <h1 className="text-2xl font-bold mb-4">Edit Category</h1>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
@@ -70,6 +100,24 @@ const EditCategoryPage = () => {
             className="w-full border px-3 py-2 rounded-md"
             required
           />
+        </div>
+        <div>
+          <label className="block mb-1 font-medium">Category Image</label>
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="w-full border px-3 py-2 rounded-md"
+          />
+          {selectedImage ? (
+            <div className="mt-2">
+              <img  src={URL.createObjectURL(selectedImage)}  alt="Selected"  className="h-32 object-cover rounded"/>
+            </div>
+          ) : existingImageUrl ? (
+            <div className="mt-2">
+              <img  src={existingImageUrl}  alt="Existing"  className="h-32 object-cover rounded"/>
+            </div>
+          ) : null}
         </div>
         <button
           type="submit"

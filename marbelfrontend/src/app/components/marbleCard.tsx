@@ -19,13 +19,13 @@ export function MarbleCard({
   color
 }: MarbleCardProps) {
   return (
-    <div className="border rounded-lg shadow-lg overflow-hidden bg-white">
+    <div className="border rounded-lg shadow-lg overflow-hidden bg-white transition-transform hover:scale-[1.01]">
     
-      <div className="relative w-full h-48">
+      <div className="relative w-full h-44">
         <Image src={imageUrl} alt={title} layout="fill" objectFit="cover" />
       </div>
 
-      <div className="p-4">
+      <div className="px-4 pb-4 pt-2">
         <h3 className="font-semibold text-2xl">{title}</h3>
 
         <div className="mt-2 flex gap-2 items-center text-md text-gray-700">
@@ -41,11 +41,11 @@ export function MarbleCard({
           <h1> {color} </h1>
         </div>
 
-        <button className="mt-3 flex items-center gap-2 text-blue-600 hover:underline">
+        <button className="mt-2 flex items-center gap-2 text-blue-600 hover:underline">
           <i className="bi bi-pencil-square"></i> Post Request
         </button>
-        <button className="mt-3 rounded text-white p-2 bg-blue-600 hover:underline">
-           <Link href={`/products/${id}`}> View Details → </Link>
+        <button className="mt-2 rounded text-white p-2 bg-blue-600 hover:underline">
+           <Link href={`/products/${id}`} key={id}> View Details → </Link>
           </button>
       </div>
     </div>

@@ -120,7 +120,7 @@ export default function AuthPage() {
           } else if (formData.role === "seller") {
             router.push("/dashboard/seller-dashboard");
           } else {
-            router.push("/");
+            router.push("/dashboard/user-dashboard");
           }
         }
       } else {

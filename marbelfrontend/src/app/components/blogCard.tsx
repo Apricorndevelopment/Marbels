@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 interface BlogProps {
   blog: {
@@ -15,8 +16,10 @@ interface BlogProps {
 export default function BlogCard({ blog }: BlogProps) {
   return (
     <Link href={`blogs/${blog.id}`}>
-      <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] min-h-[420px]">
-        <img src={`http://127.0.0.1:8000/${blog.blog_image}`} alt={blog.blog_name || "Blog Image"} className="w-full h-52 object-cover" />
+      <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] min-h-[430px]">
+        <div className="w-full h-56">
+        <Image src={`http://127.0.0.1:8000/${blog.blog_image}`} width={300} height={200} alt={blog.blog_name || "Blog Image"} className="w-full h-full object-cover" />
+        </div>
         <div className="p-4">
           <h2 className="text-lg font-semibold">{blog.blog_name}</h2>
           <h2 className="font-semibold my-2">Blog Type - {blog.blog_type}</h2>

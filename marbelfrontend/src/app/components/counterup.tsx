@@ -6,6 +6,6 @@ interface CounterProps {
 
 export function Counter({ end }: CounterProps) {
   return (
-    <CountUp start={0} end={end} duration={2} className="font-bold text-white" />
+    <CountUp start={0} end={end} duration={1.2} />
   );
 }

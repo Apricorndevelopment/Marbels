@@ -18,7 +18,7 @@ class SubcategoryController extends Controller
                 'subcategorie_name' => 'required|string|max:255',
                 'subcategorie_slug'  => 'required|string|max:255|unique:subcategories',
                 'category_id'        => 'required|exists:categories,id',
-                'image'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'image'              => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             ]);
     
             $imageName = null;
@@ -82,7 +82,7 @@ class SubcategoryController extends Controller
                 'subcategorie_name' => 'sometimes|required|string|max:255',
                 'subcategorie_slug' => 'sometimes|required|string|max:255|unique:subcategories,subcategorie_slug,' . $id,
                 'category_id'       => 'sometimes|required|exists:categories,id',
-                'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'image'             => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             ]);
     
             $subcategory = Subcategory::findOrFail($id);
@@ -131,6 +131,20 @@ class SubcategoryController extends Controller
         }
     }
     
+    public function getByCategory($categoryId)
+{
+    $subcategories = Subcategory::where('category_id', $categoryId)
+        ->select('id', 'subcategorie_name', 'image') // select only what you need
+        ->get();
+
+    // Optionally add full image path
+    foreach ($subcategories as $subcat) {
+        $subcat->image_url = $subcat->image ? asset('uploads/subcategories/' . $subcat->image) : null;
+    }
+
+    return response()->json($subcategories, 200);
+}
+
 
     public function destroy($id)
     {

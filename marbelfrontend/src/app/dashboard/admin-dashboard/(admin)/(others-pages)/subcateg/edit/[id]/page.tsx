@@ -170,20 +170,12 @@ const EditSubcategory: React.FC = () => {
           />
           {selectedImage ? (
             <div className="mt-2">
-              <img
-                src={URL.createObjectURL(selectedImage)}
-                alt="Preview"
-                className="h-32 object-cover rounded"
-              />
+              <img  src={URL.createObjectURL(selectedImage)}  alt="Preview"  className="h-32 object-cover rounded"/>
             </div>
           ) : (
             existingImageUrl && (
               <div className="mt-2">
-                <img
-                  src={existingImageUrl}
-                  alt="Existing"
-                  className="h-32 object-cover rounded"
-                />
+                <img  src={existingImageUrl}  alt="Existing"  className="h-32 object-cover rounded"/>
               </div>
             )
           )}

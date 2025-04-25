@@ -13,6 +13,7 @@ interface Category {
 interface Subcategory {
   id: number;
   subcategorie_name: string;
+  category_id: number;
 }
 
 interface Product {
@@ -34,6 +35,7 @@ interface Product {
   FOB_price: string;
   subcategory_id: number | "";
   category_id: number | "";
+  is_popular: string;
 }
 
 const countries = [
@@ -68,10 +70,12 @@ const EditProductPage = () => {
     FOB_price: "",
     subcategory_id: "",
     category_id: "",
+    is_popular: "0",
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
@@ -97,8 +101,9 @@ const EditProductPage = () => {
           size: fetchedProduct.size || "",
           surface: fetchedProduct.surface || "",
           FOB_price: fetchedProduct.FOB_price || "",
-          subcategory_id: fetchedProduct.subcategory_id || "",
-          category_id: fetchedProduct.category_id || "",
+          subcategory_id: Number(fetchedProduct.subcategory_id) || 0,
+          category_id: Number(fetchedProduct.category_id) || 0,
+          is_popular: fetchedProduct.is_popular ?? "0",
         });
         setLoading(false);
       } catch (error) {
@@ -131,6 +136,17 @@ const EditProductPage = () => {
     fetchSubcategories();
   }, [id]);
 
+  useEffect(() => {
+    if (product.category_id) {
+      const filtered = subcategories.filter(
+        (sub) => sub.category_id === Number(product.category_id)
+      );
+      setFilteredSubcategories(filtered);
+    } else {
+      setFilteredSubcategories([]);
+    }
+  }, [product.category_id, subcategories]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
@@ -147,8 +163,8 @@ const EditProductPage = () => {
   ];
 
   const materialTypes = [
-    "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Slate", "Travertine",
-    "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Tuff", "Felsite",
+    "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Quartz", "Travertine",
+    "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Terrazo", "Felsite",
     "Conglomerate", "Rhyolite", "Gypsum", "Andesite"
   ];
 
@@ -172,6 +188,7 @@ const EditProductPage = () => {
     formData.append("FOB_price", product.FOB_price);
     formData.append("subcategory_id", product.subcategory_id.toString());
     formData.append("category_id", product.category_id.toString());
+    formData.append("is_popular", product.is_popular);
 
     if (imageFile) {
       formData.append("product_image", imageFile);
@@ -230,9 +247,22 @@ const EditProductPage = () => {
           <input type="text" name="product_video" value={product.product_video} onChange={handleChange} placeholder="Video URL" className="border px-4 py-2 w-full" />
         </div>
         <div>
+          {/* Category Dropdown */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Category:</label>
-            <select name="category_id" value={product.category_id} onChange={handleChange} className="border px-4 py-2 w-full">
+            <select
+              name="category_id"
+              value={product.category_id}
+              onChange={(e) => {
+                const selectedCategoryId = Number(e.target.value);
+                setProduct({
+                  ...product,
+                  category_id: selectedCategoryId,
+                  subcategory_id: "", // Reset subcategory when category changes
+                });
+              }}
+              className="border px-4 py-2 w-full"
+            >
               <option value="">Select Category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -241,15 +271,30 @@ const EditProductPage = () => {
               ))}
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Subcategory:</label>
-            <select name="subcategory_id" value={product.subcategory_id} onChange={handleChange} className="border px-4 py-2 w-full">
+            <select
+              name="subcategory_id"
+              value={product.subcategory_id}
+              onChange={(e) =>
+                setProduct({
+                  ...product,
+                  subcategory_id: e.target.value === "" ? "" : Number(e.target.value),
+                })
+              }
+              className="border px-4 py-2 w-full"
+              disabled={!product.category_id}
+            >
               <option value="">Select Subcategory</option>
-              {subcategories.map((sub) => (
-                <option key={sub.id} value={sub.id}>{sub.subcategorie_name}</option>
+              {filteredSubcategories.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.subcategorie_name}
+                </option>
               ))}
             </select>
           </div>
+
           <label className="block text-sm font-semibold text-gray-700 mb-2">Color:</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {colors.map((item) => (
@@ -307,6 +352,13 @@ const EditProductPage = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Port:</label>
           <input type="text" name="port" value={product.port} onChange={handleChange} placeholder="Port" className="border px-4 py-2 w-full" />
+        </div>
+        <div className="w-full">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Is Popular?</label>
+          <select value={product.is_popular} onChange={(e) => setProduct({ ...product, is_popular: e.target.value })} className="w-full p-2 border rounded-md" name="is_popular">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Grade:</label>
