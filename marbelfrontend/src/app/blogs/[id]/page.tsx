@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import BlogDetails from "../../components/blogDetails";
 import { notFound } from "next/navigation";
 import { useParams } from "next/navigation";
-import axios from "axios";
+import axiosInstance from "../../../../utils/axiosInstance";
 
 interface Blog {
   id: number;
@@ -26,7 +26,7 @@ export default function BlogDetailsPage() {
       const fetchBlog = async () => {
         setLoading(true);
         try {
-          const res = await axios.get(`http://127.0.0.1:8000/api/blogs/${id}`);
+          const res = await axiosInstance.get(`/blogs/${id}`);
           setBlog(res.data.data); 
         } catch (error) {
           console.error("Failed to fetch Blog:", error);

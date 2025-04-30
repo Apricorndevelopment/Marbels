@@ -18,7 +18,7 @@ export default function BlogCard({ blog }: BlogProps) {
     <Link href={`blogs/${blog.id}`}>
       <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] min-h-[430px]">
         <div className="w-full h-56">
-        <Image src={`http://127.0.0.1:8000/${blog.blog_image}`} width={300} height={200} alt={blog.blog_name || "Blog Image"} className="w-full h-full object-cover" />
+        <Image src={`${process.env.NEXT_PUBLIC_API_URL}/${blog.blog_image}`} width={300} height={200} alt={blog.blog_name || "Blog Image"} className="w-full h-full object-cover" />
         </div>
         <div className="p-4">
           <h2 className="text-lg font-semibold">{blog.blog_name}</h2>

@@ -17,7 +17,7 @@ const BlogPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/blogs')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs`)
       .then((res) => res.json())
       .then((data) => {
         const blogList = Array.isArray(data.data) ? data.data : [];
@@ -31,7 +31,7 @@ const BlogPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`http://localhost:8000/api/blogs/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${id}`, {
         method: 'DELETE',
       });
       setBlogs((prev) => prev.filter((item) => item.id !== id));
@@ -73,7 +73,7 @@ const BlogPage = () => {
                   <td className="border px-4 py-2">{blog.blog_name}</td>
                   <td className="border px-4 py-2">
                     {blog.blog_image ? (
-                      <img src={`http://127.0.0.1:8000/${blog.blog_image}`} alt={blog.blog_name} className="w-16 h-16 object-cover rounded-md mx-auto" />
+                      <img src={`${process.env.NEXT_PUBLIC_API_URL}/${blog.blog_image}`} alt={blog.blog_name} className="w-16 h-16 object-cover rounded-md mx-auto" />
                     ) : (
                       "No Image"
                     )}

@@ -19,7 +19,7 @@ const SubcategoryPage = () => {
   const router = useRouter();
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/subcategories")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subcategories`)
       .then((res) => res.json())
       .then((data) => setSubcategories(data))
       .catch((err) => console.error("Failed to fetch subcategories", err));
@@ -30,7 +30,7 @@ const SubcategoryPage = () => {
     if (!confirm) return;
 
     try {
-      await fetch(`http://localhost:8000/api/subcategories/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subcategories/${id}`, {
         method: "DELETE",
       });
       setSubcategories((prev) => prev.filter((item) => item.id !== id));

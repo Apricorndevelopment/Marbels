@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import axiosInstance from "../../../../../../../../utils/axiosInstance";
 
 interface Subcategory {
   id: number;
@@ -14,7 +15,6 @@ interface Category {
   id: number;
   categorie_name: string;
 }
-
 
 const AddProduct = () => {
   const [name, setName] = useState("");
@@ -45,7 +45,7 @@ const AddProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/categories");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
         const data = await res.json();
         setCategories(data);
       } catch (err) {
@@ -59,7 +59,7 @@ const AddProduct = () => {
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/subcategories");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subcategories`);
         const data = await res.json();
         setSubcategories(data);
       } catch (err) {
@@ -121,7 +121,7 @@ const AddProduct = () => {
     formData.append("FOB_price", form.FOB_price);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/products", formData, {
+      const response = await axiosInstance.post("/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
@@ -129,7 +129,7 @@ const AddProduct = () => {
       });
 
       console.log("Product created successfully:", response.data);
-      router.push("/dashboard/admin-dashboard/products");
+      router.push("/dashboard/seller-dashboard/products");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const { response } = error;
@@ -183,7 +183,7 @@ const AddProduct = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full">
-        <Link href="/dashboard/admin-dashboard/products">
+        <Link href="/dashboard/seller-dashboard/products">
           <button className="bg-green-500 text-white py-2 px-5 text-xl">Go Back</button>
         </Link>
         <h1 className="text-3xl font-bold mb-5 text-center">Add Product</h1>

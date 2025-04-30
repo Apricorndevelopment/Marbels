@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import axiosInstance from "../../../../../../../utils/axiosInstance";
 
 interface Product {
   id: number;
@@ -23,7 +23,7 @@ const Products = () => {
 
   const fetchCategories = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/categories");
+      const res = await axiosInstance.get("/categories");
       setProducts(res.data);
     } catch (error) {
       console.error("Failed to fetch categories:", error);
@@ -35,7 +35,7 @@ const Products = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/categories/${id}`);
+      await axiosInstance.delete(`/categories/${id}`);
       setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Failed to delete category:", error);

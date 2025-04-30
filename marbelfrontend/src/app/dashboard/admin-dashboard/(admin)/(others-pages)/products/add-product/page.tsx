@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import axios from "axios";
+import axiosInstance from "../../../../../../../../utils/axiosInstance";
 
 interface Category {
   id: number;
@@ -47,7 +48,7 @@ const AddProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/categories");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
         const data = await res.json();
         setCategories(data);
       } catch (err) {
@@ -61,7 +62,7 @@ const AddProduct = () => {
   useEffect(() => {
     const fetchSubcategories = async () => {
       try {
-        const res = await fetch("http://127.0.0.1:8000/api/subcategories");
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/subcategories`);
         const data = await res.json();
         setSubcategories(data);
       } catch (err) {
@@ -121,7 +122,15 @@ const AddProduct = () => {
     // formData.append("keywords", keywords);
     // formData.append("tax", tax);
 
-    formData.append("product_image", images[0]); // ✅ only send the first image
+    // Add main image
+    if (images[0]) {
+      formData.append("product_image", images[0]);
+    }
+
+    // Add remaining images
+    images.slice(1).forEach((img) => {
+      formData.append("images[]", img);
+    });
 
     if (selectedPort) {
       formData.append("port", selectedPort);
@@ -133,7 +142,7 @@ const AddProduct = () => {
     formData.append("FOB_price", form.FOB_price);
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/products", formData, {
+      const response = await axiosInstance.post("/products", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Accept: "application/json",

@@ -8,28 +8,26 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable   implements JWTSubject
+class User extends Authenticatable implements JWTSubject
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
+    // 1) Whitelist all attributes you plan to mass-assign:
     protected $fillable = [
         'name',
         'email',
+        'phone',             // ← added
         'password',
         'role',
+        'phone_verified_at', // ← added
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
+    // 2) Declare casts as a property, not a function:
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'phone_verified_at' => 'datetime',  // ← if you need to treat it as a Carbon instance
+    ];
+
     protected $hidden = [
         'password',
         'remember_token',

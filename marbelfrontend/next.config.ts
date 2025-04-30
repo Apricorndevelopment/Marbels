@@ -22,16 +22,18 @@ const nextConfig: NextConfig = {
         port: '8000',
         pathname: '/storage/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'backend.stonelivestock.com',
+        pathname: '/uploads/**', // 👈 adjust this based on your image URL path
+      },
+      {
+        protocol: 'https',
+        hostname: 'backend.stonelivestock.com',
+        pathname: '/storage/**', // 👈 adjust this based on your image URL path
+      },
     ],
   },
-  // async rewrites() {
-  //   return [
-  //     {
-  //       source: "/dashboard/:path*",
-  //       destination: "/dashboard/admin-dashboard/:path*",
-  //     },
-  //   ];
-  // },
 };
 
 export default nextConfig;

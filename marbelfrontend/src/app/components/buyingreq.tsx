@@ -13,7 +13,7 @@ export function Req({ req }: Request) {
         <h1 className="text-lg font-bold text-gray-700">{req.name}</h1>
         <h2 className="text-md font-semibold text-gray-600">
           Enquiry about{" "}
-          <span className="text-blue-600 font-bold">
+          <span className="text-yellow-500 font-bold">
             {req.product || "No product specified"}
           </span>
         </h2>
@@ -23,7 +23,7 @@ export function Req({ req }: Request) {
         <span>{req.message || "No message provided"}</span>
       </div>
       <div className="flex flex-wrap justify-between items-center mt-4 pt-2 border-t-[1px] border-dotted border-gray-300">
-        <button className="mt-3 bg-blue-600 text-white py-2 px-6 rounded-md hover:bg-blue-700 transition duration-200 ease-in-out">
+        <button className="mt-3 bg-yellow-400 text-black py-2 px-6 rounded-md hover:bg-yellow-500 transition duration-200 ease-in-out">
           Respond Now
         </button>
       </div>

@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 
 interface NavLink {
   name: string;
@@ -34,7 +34,7 @@ export function Header2() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/categories");
+        const res = await axiosInstance.get("/categories");
         setCategories(res.data);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
@@ -108,12 +108,12 @@ export function Header2() {
 
       {/* Mobile Navigation */}
       {menuOpen && (
-        <nav className="absolute top-14 left-0 w-full z-20 bg-[#ffee93] shadow-md flex flex-col items-center md:hidden">
+        <nav className="absolute top-12 left-0 w-full z-10 bg-yellow-300 text-black font-semibold shadow-md flex flex-col items-center md:hidden">
           {navLinks.map((link, index) => (
             <Link
               key={index}
               href={link.href}
-              className="block w-full text-center py-2 border-b border-slate-300 hover:bg-yellow-200 transition-colors"
+              className="block w-full text-center py-2 border-b border-black "
               onClick={() => setMenuOpen(false)}
             >
               {link.name}

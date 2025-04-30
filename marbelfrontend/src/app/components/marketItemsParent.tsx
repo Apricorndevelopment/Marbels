@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { MarketItem } from "./marketItems";
+import axiosInstance from "../../../utils/axiosInstance";
 
 interface Category {
   id: number;
@@ -23,11 +23,11 @@ export function Sidebar({ setActiveMarket }: { setActiveMarket: (content: string
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
       try {
-        const categoriesRes = await axios.get<Category[]>("http://127.0.0.1:8000/api/categories");
+        const categoriesRes = await axiosInstance.get<Category[]>("/categories");
         const categoriesWithSubcategories: Category[] = await Promise.all(
           categoriesRes.data.map(async (category) => {
-            const subRes = await axios.get<Subcategory[]>(
-              `http://127.0.0.1:8000/api/subcategories/by-category/${category.id}`
+            const subRes = await axiosInstance.get<Subcategory[]>(
+              `/subcategories/by-category/${category.id}`
             );
             return {
               ...category,
@@ -46,11 +46,11 @@ export function Sidebar({ setActiveMarket }: { setActiveMarket: (content: string
 
   return (
     <aside className="p-4 mt-3">
-      <h2 className="font-bold text-2xl mb-8">My Markets</h2>
+      <h2 className="font-bold text-2xl mb-8 sm:mb-5">My Markets</h2>
       <div>
         {markets.map((market) => (
           <div
-            className="py-3"
+            className="py-5 sm:py-3"
             key={market.id}
             onMouseEnter={() => !isPermanent && setActiveMarket(market.subcategories.map(sub => sub.subcategorie_name))}
             onMouseLeave={() => !isPermanent && setActiveMarket(null)}

@@ -15,7 +15,7 @@ export default function AdminUsersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/admin/users`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/users`)
       .then((res) => res.json())
       .then((data) => {
         setUsers(data.data);

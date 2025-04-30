@@ -16,7 +16,7 @@ const EnquiryPage = () => {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/enquiries")
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/enquiries`)
       .then((res) => res.json())
       .then((data) => setEnquiries(data))
       .catch((err) => console.error("Failed to fetch enquiries", err));
@@ -27,7 +27,7 @@ const EnquiryPage = () => {
     if (!confirmDelete) return;
 
     try {
-      await fetch(`http://localhost:8000/api/enquiries/${id}`, {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/enquiries/${id}`, {
         method: "DELETE",
       });
       setEnquiries((prev) => prev.filter((item) => item.id !== id));

@@ -14,7 +14,7 @@ export default function Request() {
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/enquiries") 
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/enquiries`) 
       .then((res) => res.json())
       .then((data) => setEnquiries(data))
       .catch((err) => console.error("Failed to fetch enquiries", err));
@@ -22,10 +22,11 @@ export default function Request() {
 
   return (
     <>
-      <div
+      {/* <div
         className="sm:m-4 text-black bg-cover bg-center flex lg:justify-between flex-wrap justify-center items-center p-8"
-        style={{ backgroundImage: `url('/mar_pics/marbel5.jpg')` }}
-      >
+        style={{ backgroundImage: `url('/mar_pics/marbel5.jpg')` }}> */}
+      <div
+        className="sm:m-4 text-black bg-white border rounded-lg shadow-xl flex lg:justify-between flex-wrap justify-center items-center p-8">
         <div className="sm:text-3xl flex flex-col gap-4 sm:gap-16">
           <h1>REQUEST FOR QUOTATION </h1>
           <div className="flex gap-4 sm:gap-12">
@@ -49,7 +50,7 @@ export default function Request() {
           <input
             type="text"
             placeholder="What are you looking for.."
-            className="sm:w-full p-3 mt-4 text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="sm:w-full p-3 mt-4 border text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <p className="text-red-500 text-[12px] sm:text-sm mt-1">
             Please input the name of product you need!
@@ -70,13 +71,13 @@ export default function Request() {
           <p className="text-red-500 text-[13px] sm:text-sm mt-1">
             Please Input your Need Product Number!
           </p>
-          <button className="w-full mt-4 p-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition">
+          <button className="w-full mt-4 p-3 text-black bg-yellow-400 rounded-md hover:bg-yellow-300 transition">
             Request For Quotation
           </button>
         </div>
       </div>
 
-      <div className="mx-4 my-7 text-2xl font-bold">
+      <div className="mx-4 my-7 text-3xl font-bold">
         <h1>Buying Requests</h1>
       </div>
 

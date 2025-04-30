@@ -4,10 +4,10 @@ import Link from "next/link";
 export function Header1() {
   return (
     <header className="bg-gray-900 text-white shadow-md">
-      <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between px-4 py-1 gap-4">
+      <div className="max-w-8xl mx-auto flex flex-wrap items-center justify-between px-4 py-1 gap-4">
 
         {/* Logo and Search */}
-        <div className="flex flex-wrap items-center gap-6">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-6">
           <Link href="/" className="flex items-center">
             <Image
               src="/logoo.png"
@@ -31,17 +31,13 @@ export function Header1() {
         </div>
 
         {/* Navigation Icons */}
-        <div className="flex items-center gap-6 text-sm">
+        <div className="flex items-center gap-8 text-sm">
           <Link href="/auth" className="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
             <i className="bi bi-person" /> <span>Sign In / Sign Up</span>
           </Link>
 
-          <a href="#" className="hover:text-yellow-300 transition-colors duration-200 flex items-center gap-1">
-            <i className="bi bi-heart" /> <span>Favorites</span>
-          </a>
-
           {/* Social Icons */}
-          <div className="flex gap-3 text-zinc-200">
+          <div className="flex gap-2 sm:gap-3 text-zinc-200">
             <a href="#"><i className="bi bi-facebook hover:text-amber-300 " /></a>
             <a href="#"><i className="bi bi-instagram hover:text-amber-300" /></a>
             <a href="#"><i className="bi bi-twitter hover:text-amber-300" /></a>

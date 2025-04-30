@@ -10,6 +10,7 @@ use App\Http\Controllers\EnquireController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\Api\UploadCsvApiController;
 use App\Models\Enquire;
 
 Route::get('/user', function (Request $request) {
@@ -17,6 +18,9 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 Route::post('/register', [AuthController::class, 'register'])->withoutMiddleware([\App\Http\Middleware\CustomMiddleware::class]);
 Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::post('/send-otp-email', [AuthController::class, 'sendOtpToEmail']);
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
+Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
 Route::get('/dashboard', [AuthController::class, 'dashboard']);
 Route::post('/logout', [AuthController::class, 'logout']);
@@ -33,6 +37,8 @@ Route::get('/subcategories/{id}', [SubCategoryController::class, 'show']);
 Route::put('/subcategories/{id}', [SubCategoryController::class, 'update']);
 Route::delete('/subcategories/{id}', [SubCategoryController::class, 'destroy']);
 Route::get('/subcategories/by-category/{categoryId}', [SubcategoryController::class, 'getByCategory']);
+Route::get('/products/related/{subcategory_id}', [ProductController::class, 'relatedProducts']);
+
 
 // product api routes------------
 Route::prefix('products')->group(function () {
@@ -41,7 +47,8 @@ Route::prefix('products')->group(function () {
     Route::get('popular', [ProductController::class, 'popular']);
     Route::get('color/{color}', [ProductController::class, 'getByColor']);
     Route::post('/', [ProductController::class, 'store']);
-    Route::get('{id}', [ProductController::class, 'show']);
+    // Route::get('{id}', [ProductController::class, 'show']);
+    Route::get('{slug}', [ProductController::class, 'show']);
     Route::put('{id}', [ProductController::class, 'update']);
     Route::delete('{id}', [ProductController::class, 'destroy']);
 });
@@ -65,3 +72,4 @@ Route::get('/blogs/{id}', [BlogController::class, 'show']);
 Route::post('/blogs', [BlogController::class, 'store']);
 Route::put('/blogs/{id}', [BlogController::class, 'update']);
 Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
+Route::post('/upload-csv-api',[UploadCsvApiController::class,'uploadCsv']);

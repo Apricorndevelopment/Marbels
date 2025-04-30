@@ -7,7 +7,7 @@ interface MarketItemProps {
 
 export function MarketItem({ icon, name }: MarketItemProps) {
   return (
-    <div className="flex items-center gap-2 sm:gap-7 sm:p-5 hover:bg-yellow-200 cursor-pointer">
+    <div className="flex items-center gap-3 sm:gap-5 sm:p-5 hover:bg-yellow-200 cursor-pointer">
       
       <Image src={icon} alt={name} width={38} height={38} />
 

@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import { SlabsCard } from "../components/slabscard";
 import { StoneHead } from "../components/stoneHeadCard";
 import { Counter } from "../components/counterup";
 import { PopularProductsGrid } from "../components/popularslabsgrid";
 import Link from "next/link";
+import axiosInstance from "../../../utils/axiosInstance";
 
 interface BackendProduct {
   id: number;
@@ -14,8 +14,8 @@ interface BackendProduct {
   min_order: string;
   FOB_price: string;
   product_image: string;
+  product_slug: string;  // Add the slug field
 }
-
 
 interface SlabProduct {
   id: number;
@@ -24,8 +24,8 @@ interface SlabProduct {
   stock: number;
   price: number;
   image: string;
+  slug: string;  // Add the slug to the SlabProduct interface
 }
-
 // const BrownStone = [
 //   {
 //     name: "Admiral Blue Quartzite",
@@ -73,7 +73,7 @@ export default function Home() {
   useEffect(() => {
     const fetchProductsByColor = async (color: string): Promise<SlabProduct[]> => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/products/color/${color}`);
+        const res = await axiosInstance.get(`/products/color/${color}`);
         return (res.data as BackendProduct[]).map((product) => ({
           id: product.id,
           name: product.product_name,
@@ -81,13 +81,14 @@ export default function Home() {
           stock: parseFloat(product.min_order),
           price: parseFloat(product.FOB_price),
           image: `/${product.product_image.replace(/^\/?/, '')}`,
+          slug: product.product_slug,  // Map the slug
         }));
       } catch (error) {
         console.error(`Failed to fetch ${color} products`, error);
         return [];
       }
     };
-  
+
     const fetchAllColors = async () => {
       try {
         const [white, blue, brown] = await Promise.all([
@@ -102,11 +103,9 @@ export default function Home() {
         setLoading(false);
       }
     };
-  
     fetchAllColors();
   }, []);
   
-
   return (
     <>
       <div className="h-96 w-full bg-cover bg-center" style={{ backgroundImage: `url('/mar_pics/marbel7.jpg')` }}>
@@ -129,49 +128,49 @@ export default function Home() {
       </div>
 
       {loading ? (
-        <p className="p-6">Loading Coloured Stones...</p>
+        <p className="p-3 sm:p-6">Loading Coloured Stones...</p>
       ) : (
         <div className="container mx-auto">
-          <div className="my-6 p-6 bg-gray-100 rounded-2xl" id="white-slab">
+          <div className="my-6 p-3 sm:p-6 bg-gray-100 rounded-2xl" id="white-slab">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
               <div className="col-span-2">
                 <Link href={"/products?color=White"}>
-                  <StoneHead icon="/mar_pics/marbel5.jpg" name="White Stone Slabs" w={345} h={300} />
+                  <StoneHead icon="/mar_pics/marbel5.jpg" name="White Stone Slabs" w={340} h={300} />
                 </Link>
               </div>
               {whiteStones.map((product) => (
-                <Link href={`/products/${product.id}`} key={product.id}>
+                <Link href={`/products/${product.slug}`} key={product.id}>
                   <SlabsCard product={product} />
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="my-6 p-6 bg-gray-100 rounded-2xl" id="blue-slab">
+          <div className="my-6 p-3 sm:p-6 bg-gray-100 rounded-2xl" id="blue-slab">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
               <div className="col-span-2">
                 <Link href={"/products?color=Blue"}>
-                  <StoneHead icon="/mar_pics/marbel3.jpg" name="Blue Stone Slabs" w={345} h={300} />
+                  <StoneHead icon="/mar_pics/marbel3.jpg" name="Blue Stone Slabs" w={340} h={300} />
                 </Link>
               </div>
-              {blueStones.map((product, i) => (
-                <Link href={`/products/${product.id}`} key={product.id}>
-                  <SlabsCard key={i} product={product} />
+              {blueStones.map((product) => (
+                <Link href={`/products/${product.slug}`} key={product.id}>
+                  <SlabsCard product={product} />
                 </Link>
               ))}
             </div>
           </div>
 
-          <div className="my-6 p-6 bg-gray-100 rounded-2xl" id="brown-slab">
+          <div className="my-6 p-3 sm:p-6 bg-gray-100 rounded-2xl" id="brown-slab">
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
               <div className="col-span-2">
                 <Link href={"/products?color=Brown"}>
-                  <StoneHead icon="/mar_pics/marbel7.jpg" name="Brown Stone Slabs" w={345} h={300} />
+                  <StoneHead icon="/mar_pics/marbel7.jpg" name="Brown Stone Slabs" w={340} h={300} />
                 </Link>
               </div>
-              {brownStones.map((product, i) => (
-                <Link href={`/products/${product.id}`} key={product.id}>
-                  <SlabsCard key={i} product={product} />
+              {brownStones.map((product) => (
+                <Link href={`/products/${product.slug}`} key={product.id}>
+                  <SlabsCard product={product} />
                 </Link>
               ))}
             </div>

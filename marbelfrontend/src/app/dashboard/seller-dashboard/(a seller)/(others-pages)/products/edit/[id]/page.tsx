@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
 import Link from "next/link";
+import axiosInstance from "../../../../../../../../../utils/axiosInstance";
 
 interface Category {
   id: number;
@@ -78,7 +78,7 @@ const EditProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/products/${id}`);
+        const res = await axiosInstance.get(`/products/${id}`);
         const fetchedProduct = res.data;
         setProduct({
           id: fetchedProduct.id,
@@ -109,7 +109,7 @@ const EditProductPage = () => {
 
     const fetchSubcategories = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/subcategories");
+        const res = await axiosInstance.get("/subcategories");
         setSubcategories(res.data);
       } catch (err) {
         console.error("Failed to fetch subcategories:", err);
@@ -118,7 +118,7 @@ const EditProductPage = () => {
 
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/categories");
+        const res = await axiosInstance.get("/categories");
         setCategories(res.data);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
@@ -178,13 +178,13 @@ const EditProductPage = () => {
     }
 
     try {
-      await axios.post(`http://127.0.0.1:8000/api/products/${id}`, formData, {
+      await axiosInstance.post(`/products/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
       });
       alert("Product updated successfully!");
-      router.push("/dashboard/admin-dashboard/products");
+      router.push("/dashboard/seller-dashboard/products");
     } catch (error) {
       console.error("Error updating product:", error);
     }
@@ -195,7 +195,7 @@ const EditProductPage = () => {
 
   return (
     <div className="p-6">
-      <Link href="/dashboard/admin-dashboard/products">
+      <Link href="/dashboard/seller-dashboard/products">
         <button className="bg-green-500 text-white py-2 px-5 text-xl">Go Back</button>
       </Link>
       <h1 className="text-3xl font-bold mb-5 text-center">Edit Product</h1>
@@ -215,7 +215,7 @@ const EditProductPage = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Current Image:</label>
           {product.product_image && !imageFile && (
-            <img src={`http://127.0.0.1:8000/storage/${product.product_image}`} alt="Current Product" className="w-24 h-24 object-cover mb-2" />
+            <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${product.product_image}`} alt="Current Product" className="w-24 h-24 object-cover mb-2" />
           )}
           {imageFile && (
             <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-24 h-24 object-cover mb-2" />

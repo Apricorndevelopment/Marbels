@@ -2,8 +2,8 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import axios from "axios";
 import Link from "next/link";
+import axiosInstance from "../../../../../../../../../utils/axiosInstance";
 
 const EditCategoryPage = () => {
   const { id } = useParams();
@@ -19,14 +19,14 @@ const EditCategoryPage = () => {
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/categories/${id}`);
+        const res = await axiosInstance.get(`/categories/${id}`);
         setFormData({
           categorie_name: res.data.categorie_name,
           categorie_slug: res.data.categorie_slug,
         });
 
         if (res.data.image) {
-          setExistingImageUrl(`http://127.0.0.1:8000/uploads/categories/${res.data.image}`);
+          setExistingImageUrl(`${process.env.NEXT_PUBLIC_API_URL}/uploads/categories/${res.data.image}`);
         }
       } catch (error) {
         console.error("Error fetching category:", error);
@@ -57,7 +57,7 @@ const EditCategoryPage = () => {
     }
 
     try {
-      await axios.post(`http://127.0.0.1:8000/api/categories/${id}?_method=PUT`, data, {
+      await axiosInstance.post(`/categories/${id}?_method=PUT`, data, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

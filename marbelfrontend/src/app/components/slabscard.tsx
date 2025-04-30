@@ -15,7 +15,7 @@ export function SlabsCard({ product }: ProductCardProps) {
     <div className="border rounded-lg shadow-md px-3 py-5 bg-white">
        <div className="w-full h-40 overflow-hidden rounded-md hover:border-[1.4px] border-blue-700">
         <Image
-          src={`http://127.0.0.1:8000/storage/${product.image}`}
+          src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${product.image}`}
           alt={product.name}
           width={300}
           height={200}

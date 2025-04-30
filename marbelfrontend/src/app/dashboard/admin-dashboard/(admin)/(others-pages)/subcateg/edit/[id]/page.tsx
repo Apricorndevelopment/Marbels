@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import axios, { AxiosError } from "axios";
 import Link from "next/link";
+import axiosInstance from "../../../../../../../../../utils/axiosInstance";
 
 interface Category {
   id: number;
@@ -34,8 +35,8 @@ const EditSubcategory: React.FC = () => {
     async function fetchData() {
       try {
         const [catRes, subRes] = await Promise.all([
-          axios.get<Category[]>("http://127.0.0.1:8000/api/categories"),
-          axios.get<Subcategory>(`http://127.0.0.1:8000/api/subcategories/${id}`)
+          axiosInstance.get<Category[]>("/categories"),
+          axiosInstance.get<Subcategory>(`/subcategories/${id}`)
         ]);
 
         setCategories(catRes.data);
@@ -44,7 +45,7 @@ const EditSubcategory: React.FC = () => {
         setParentCatId(subRes.data.category_id.toString());
 
         if (subRes.data.image) {
-          setExistingImageUrl(`http://127.0.0.1:8000/uploads/subcategories/${subRes.data.image}`);
+          setExistingImageUrl(`${process.env.NEXT_PUBLIC_API_URL}/uploads/subcategories/${subRes.data.image}`);
         }
       } catch (err) {
         console.error("Fetch failed:", err);
@@ -81,8 +82,8 @@ const EditSubcategory: React.FC = () => {
     }
 
     try {
-      await axios.post(
-        `http://127.0.0.1:8000/api/subcategories/${id}?_method=PUT`,
+      await axiosInstance.post(
+        `/subcategories/${id}?_method=PUT`,
         formData,
         {
           headers: {

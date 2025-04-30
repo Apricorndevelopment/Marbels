@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
 import Link from "next/link";
 import Image from "next/image";
+
 type Subcategory = {
   id: number;
   subcategorie_name: string;
@@ -21,11 +22,10 @@ type Subcategory = {
 export function StoneLib() {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
 
-
   useEffect(() => {
     const fetchStones = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/subcategories/by-category/1");
+        const res = await axiosInstance.get("/subcategories/by-category/1");
         setSubcategories(res.data);
       } catch (err) {
         console.error("Failed to fetch subcategories:", err);
@@ -43,9 +43,9 @@ export function StoneLib() {
         {subcategories.map((item, index) => (
           <div
           key={index}
-          className="flex items-center justify-center flex-col gap-6 hover:bg-yellow-100 transition-colors duration-200 p-6"
+          className="flex items-center justify-center flex-col gap-6 p-6"
           >
-            <Image className="border-0 rounded-[50%] w-22 h-22" src={item.image_url || "/fallback-image.jpg"} width={22} height={22} alt={item.subcategorie_name} />
+            <Image className="border-0 rounded-[50%] w-22 h-22 transform transition-transform duration-500 hover:rotate-360" src={item.image_url || "/fallback-image.jpg"} width={22} height={22} alt={item.subcategorie_name} />
             <span className="text-gray-700 font-xl text-center">{item.subcategorie_name}</span>
           </div>
         ))}

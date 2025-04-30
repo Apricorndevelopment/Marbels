@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import axios, { AxiosError } from "axios";
+import { useState , useEffect} from "react";
+import { AxiosError } from "axios";
+import axiosInstance from "../../../utils/axiosInstance";
+import { useSearchParams } from "next/navigation";
 
 interface EnquiryFormData {
   name: string;
@@ -28,6 +30,14 @@ export default function EnquiryPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
+  const searchParams = useSearchParams();
+const productFromQuery = searchParams.get("product");
+
+useEffect(() => {
+  if (productFromQuery) {
+    setFormData((prev) => ({ ...prev, product: productFromQuery }));
+  }
+}, [productFromQuery]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -42,8 +52,8 @@ export default function EnquiryPage() {
     setErrorMessage("");
 
     try {
-      const response = await axios.post<EnquiryResponse>(
-        "http://127.0.0.1:8000/api/enquiries",
+      const response = await axiosInstance.post<EnquiryResponse>(
+        "/enquiries",
         formData
       );
 

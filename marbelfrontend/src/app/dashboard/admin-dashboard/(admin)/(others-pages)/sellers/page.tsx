@@ -15,7 +15,7 @@ export default function AdminsellersPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/admin/sellers`)
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/admin/sellers`)
       .then((res) => res.json())
       .then((data) => {
         setSellers(data.data);

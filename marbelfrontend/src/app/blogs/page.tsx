@@ -1,7 +1,7 @@
 "use client";
-import axios from "axios";
 import BlogCard from "../components/blogCard";
 import { useEffect, useState } from "react";
+import axiosInstance from "../../../utils/axiosInstance";
 
 interface blog {
   id: number;
@@ -21,7 +21,7 @@ export default function BlogSectionPage() {
     const fetchBlogs = async () => {
       setLoading(true);
       try {
-        const res = await axios.get('http://127.0.0.1:8000/api/blogs');
+        const res = await axiosInstance.get('/blogs');
         const blogList = Array.isArray(res.data.data) ? res.data.data : [];
         setBlogs(blogList);
       } catch (error) {

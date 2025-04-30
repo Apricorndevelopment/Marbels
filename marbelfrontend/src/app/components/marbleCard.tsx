@@ -2,16 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 
 interface MarbleCardProps {
-    id: string; 
+  slug: string;  // Use slug instead of id
   imageUrl: string;
   title: string;
   countryName: string;
   type: string;
-  color:string;
+  color: string;
 }
 
 export function MarbleCard({
-    id,
+  slug,  // Change id to slug
   imageUrl,
   title,
   countryName,
@@ -20,7 +20,6 @@ export function MarbleCard({
 }: MarbleCardProps) {
   return (
     <div className="border rounded-lg shadow-lg overflow-hidden bg-white transition-transform hover:scale-[1.01]">
-    
       <div className="relative w-full h-44">
         <Image src={imageUrl} alt={title} layout="fill" objectFit="cover" />
       </div>
@@ -33,20 +32,21 @@ export function MarbleCard({
           <h1> {countryName} </h1>
         </div>
         <div className="mt-1 flex gap-2 items-center text-md text-gray-700">
-          <h1 className="font-semibold"> Marble Type : </h1>
+          <h1 className="font-semibold">Marble Type : </h1>
           <h1> {type} </h1>
         </div>
         <div className="mt-1 flex gap-2 items-center text-md text-gray-700">
-          <h1 className="font-semibold"> Color : </h1>
+          <h1 className="font-semibold">Color : </h1>
           <h1> {color} </h1>
         </div>
 
-        <button className="mt-2 flex items-center gap-2 text-blue-600 hover:underline">
+        <button className="mt-2 flex items-center gap-2 text-yellow-500 hover:underline">
           <i className="bi bi-pencil-square"></i> Post Request
         </button>
-        <button className="mt-2 rounded text-white p-2 bg-blue-600 hover:underline">
-           <Link href={`/products/${id}`} key={id}> View Details → </Link>
-          </button>
+        <button className="mt-2 rounded-lg text-black py-2 px-3 bg-yellow-400 hover:underline">
+          {/* Update Link to use slug instead of id */}
+          <Link href={`/products/${slug}`} key={slug}> View Details → </Link>
+        </button>
       </div>
     </div>
   );

@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import axios from "axios";
 import Link from "next/link";
+import axiosInstance from "../../../../../../../../../utils/axiosInstance";
 
 interface Category {
   id: number;
@@ -77,12 +77,14 @@ const EditProductPage = () => {
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  // images ka type aise define karo
+  const [images, setImages] = useState<(File | string)[]>([]);
+  const [imageInputs, setImageInputs] = useState<number[]>([Date.now()]); // To manage multiple image inputs
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axios.get(`http://127.0.0.1:8000/api/products/${id}`);
+        const res = await axiosInstance.get(`/products/${id}`);
         const fetchedProduct = res.data;
         setProduct({
           id: fetchedProduct.id,
@@ -105,6 +107,9 @@ const EditProductPage = () => {
           category_id: Number(fetchedProduct.category_id) || 0,
           is_popular: fetchedProduct.is_popular ?? "0",
         });
+        if (fetchedProduct.images && Array.isArray(fetchedProduct.images)) {
+          setImages(fetchedProduct.images.map((imgUrl: string) => imgUrl));
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -114,7 +119,7 @@ const EditProductPage = () => {
 
     const fetchSubcategories = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/subcategories");
+        const res = await axiosInstance.get("/subcategories");
         setSubcategories(res.data);
       } catch (err) {
         console.error("Failed to fetch subcategories:", err);
@@ -123,7 +128,7 @@ const EditProductPage = () => {
 
     const fetchCategories = async () => {
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/categories");
+        const res = await axiosInstance.get("/categories");
         setCategories(res.data);
       } catch (err) {
         console.error("Failed to fetch categories:", err);
@@ -151,10 +156,24 @@ const EditProductPage = () => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setImages([...images, event.target.files[0]]);
     }
+  };
+  const addImageInput = () => {
+    setImageInputs([...imageInputs, Date.now()]);
+  };
+
+  const removeLastInput = () => {
+    if (imageInputs.length > 1) {
+      setImageInputs(imageInputs.slice(0, -1));
+      setImages(images.slice(0, -1));
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
   };
 
   const colors = [
@@ -190,12 +209,13 @@ const EditProductPage = () => {
     formData.append("category_id", product.category_id.toString());
     formData.append("is_popular", product.is_popular);
 
-    if (imageFile) {
-      formData.append("product_image", imageFile);
-    }
+    // Append all selected images
+    images.forEach((file) => {
+      formData.append("images[]", file);
+    });
 
     try {
-      await axios.post(`http://127.0.0.1:8000/api/products/${id}`, formData, {
+      await axiosInstance.post(`/products/${id}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },
@@ -229,19 +249,56 @@ const EditProductPage = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Description:</label>
           <textarea name="product_desc" value={product.product_desc} onChange={handleChange} placeholder="Description" className="border px-4 py-2 w-full h-32 resize-none" />
         </div>
+
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Current Image:</label>
-          {product.product_image && !imageFile && (
-            <img src={`http://127.0.0.1:8000/storage/${product.product_image}`} alt="Current Product" className="w-24 h-24 object-cover mb-2" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Images:</label>
+          {images.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {images.map((img, index) => (
+                <div key={index} className="relative">
+                  <img src={img instanceof File ? URL.createObjectURL(img) : `${process.env.NEXT_PUBLIC_API_URL}/storage/${img}` } alt={`preview-${index}`} className="w-20 h-20 object-cover rounded-md border"/>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
-          {imageFile && (
-            <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-24 h-24 object-cover mb-2" />
-          )}
-          <input type="file" name="product_image" onChange={handleImageChange} className="w-full p-2 border rounded-md my-1 file:bg-blue-500 file:text-white 
-            file:py-1 file:px-3 file:rounded-md 
-            file:border-none file:cursor-pointer 
-            hover:file:bg-blue-600 transition duration-300" />
+
+          {imageInputs.map((inputId) => (
+            <input
+              key={inputId}
+              type="file"
+              onChange={handleImageChange}
+              className="w-full p-2 border rounded-md my-1 file:bg-blue-500 file:text-white file:py-1 file:px-3 file:rounded-md file:border-none file:cursor-pointer hover:file:bg-blue-600 transition duration-300"
+            />
+          ))}
+
+          <div className="mt-2 ms-2 flex gap-2">
+            <button
+              type="button"
+              onClick={addImageInput}
+              className="bg-green-500 text-white px-4 py-2 rounded-md text-sm"
+            >
+              + Add More
+            </button>
+            {imageInputs.length > 1 && (
+              <button
+                type="button"
+                onClick={removeLastInput}
+                className="bg-red-500 text-white px-4 py-2 rounded-md text-sm"
+              >
+                - Remove Last
+              </button>
+            )}
+          </div>
         </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Video URL:</label>
           <input type="text" name="product_video" value={product.product_video} onChange={handleChange} placeholder="Video URL" className="border px-4 py-2 w-full" />

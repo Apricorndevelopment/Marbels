@@ -32,7 +32,7 @@ const EditBlogPage = () => {
 
   useEffect(() => {
     if (id) {
-      fetch(`http://localhost:8000/api/blogs/${id}`)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${id}`)
         .then((res) => res.json())
         .then((data) => {
           if (data?.status && data.data) {
@@ -78,7 +78,7 @@ const EditBlogPage = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:8000/api/blogs/${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blogs/${id}`, {
         method: 'POST',
         body: formData,
         headers: {
@@ -180,7 +180,7 @@ const EditBlogPage = () => {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Current Image: </label>
             {form.blog_image && !imageFile && (
-              <img src={`http://127.0.0.1:8000/${form.blog_image}`} alt="Current" className="w-24 h-24 object-cover rounded-md mb-3"/>
+              <img src={`${process.env.NEXT_PUBLIC_API_URL}/${form.blog_image}`} alt="Current" className="w-24 h-24 object-cover rounded-md mb-3"/>
             )}
             {imageFile && (
               <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-24 h-24 object-cover rounded-md mb-3"/>

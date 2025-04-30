@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
-import axios from "axios";
 import { useRouter } from "next/navigation";
+import axiosInstance from "../../../../../../../utils/axiosInstance";
 
 interface Product {
   id: number;
@@ -23,7 +23,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:8000/api/products");
+      const res = await axiosInstance.get("/products");
       setProducts(res.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
@@ -35,7 +35,7 @@ const Products = () => {
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/products/${id}`);
+      await axiosInstance.delete(`/products/${id}`);
       setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Failed to delete product:", error);
@@ -54,6 +54,11 @@ const Products = () => {
       <Link href="/dashboard/admin-dashboard/products/add-product">
         <button className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-200">
           Add Product
+        </button>
+      </Link>
+      <Link href="/dashboard/admin-dashboard/products/add-bulk-product">
+        <button className="bg-green-500 text-white px-4 py-2 ms-4 rounded-md hover:bg-green-700 transition duration-200">
+          Add Bulk Product 
         </button>
       </Link>
 
@@ -83,7 +88,7 @@ const Products = () => {
                   <td className="border px-4 py-2">{product.product_slug}</td>
                   <td className="border px-4 py-2">
                     {product.product_image ? (
-                      <img src={`http://127.0.0.1:8000/storage/${product.product_image}`} alt={product.product_name} className="w-16 h-16 object-cover rounded-md mx-auto" />
+                      <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${product.product_image}`} alt={product.product_name} className="w-16 h-16 object-cover rounded-md mx-auto" />
                     ) : (
                       "No Image"
                     )}

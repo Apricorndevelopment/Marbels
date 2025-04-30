@@ -7,7 +7,7 @@ interface stoneProps {
 
 export function StoneCard({ icon, name }: stoneProps) {
   return (
-    <div className="px-4 border-r border-b border-gray-400 bg-white h-56 cursor-pointer hover:border-2">
+    <div className="px-4 border-r border-b border-gray-200 bg-white h-56 cursor-pointer hover:border hover:border-black">
       <div className="flex flex-col gap-5 justify-center">
         <h1 className="text-1xl pt-2 hover:text-blue-500">{name} </h1>
         <div className="flex justify-center items-center py-3 h-36">
