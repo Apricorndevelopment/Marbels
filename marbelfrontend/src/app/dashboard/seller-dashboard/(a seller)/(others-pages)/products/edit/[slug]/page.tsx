@@ -13,6 +13,7 @@ interface Category {
 interface Subcategory {
   id: number;
   subcategorie_name: string;
+  category_id: number;
 }
 
 interface Product {
@@ -24,6 +25,7 @@ interface Product {
   product_image: string;
   material_type: string;
   color: string;
+  stock: string;
   min_order: number;
   material_origin: string;
   province_city: string;
@@ -34,6 +36,8 @@ interface Product {
   FOB_price: string;
   subcategory_id: number | "";
   category_id: number | "";
+  is_popular: string;
+  additonal_name: string;
 }
 
 const countries = [
@@ -46,7 +50,7 @@ const countries = [
 ];
 
 const EditProductPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const router = useRouter();
 
   const [product, setProduct] = useState<Product>({
@@ -58,6 +62,7 @@ const EditProductPage = () => {
     product_image: "",
     material_type: "",
     color: "",
+    stock: "",
     min_order: 0,
     material_origin: "",
     province_city: "",
@@ -68,17 +73,22 @@ const EditProductPage = () => {
     FOB_price: "",
     subcategory_id: "",
     category_id: "",
+    is_popular: "0",
+    additonal_name: "",
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [imageFile, setImageFile] = useState<File | null>(null);
+  // images ka type aise define karo
+  const [images, setImages] = useState<(File | string)[]>([]);
+  const [imageInputs, setImageInputs] = useState<number[]>([Date.now()]); // To manage multiple image inputs
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axiosInstance.get(`/products/${id}`);
+        const res = await axiosInstance.get(`/products/${slug}`);
         const fetchedProduct = res.data;
         setProduct({
           id: fetchedProduct.id,
@@ -89,6 +99,7 @@ const EditProductPage = () => {
           product_image: fetchedProduct.product_image || "",
           material_type: fetchedProduct.material_type || "",
           color: fetchedProduct.color || "",
+          stock: fetchedProduct.stock || "",
           min_order: fetchedProduct.min_order || 0,
           material_origin: fetchedProduct.material_origin || "",
           province_city: fetchedProduct.province_city || "",
@@ -97,9 +108,14 @@ const EditProductPage = () => {
           size: fetchedProduct.size || "",
           surface: fetchedProduct.surface || "",
           FOB_price: fetchedProduct.FOB_price || "",
-          subcategory_id: fetchedProduct.subcategory_id || "",
-          category_id: fetchedProduct.category_id || "",
+          additonal_name: fetchedProduct.additonal_name || "",
+          subcategory_id: Number(fetchedProduct.subcategory_id) || 0,
+          category_id: Number(fetchedProduct.category_id) || 0,
+          is_popular: fetchedProduct.is_popular ?? "0",
         });
+        if (fetchedProduct.images && Array.isArray(fetchedProduct.images)) {
+          setImages(fetchedProduct.images.map((imgUrl: string) => imgUrl));
+        }
         setLoading(false);
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -129,16 +145,41 @@ const EditProductPage = () => {
     fetchProduct();
     fetchCategories();
     fetchSubcategories();
-  }, [id]);
+  }, [slug]);
+
+  useEffect(() => {
+    if (product.category_id) {
+      const filtered = subcategories.filter(
+        (sub) => sub.category_id === Number(product.category_id)
+      );
+      setFilteredSubcategories(filtered);
+    } else {
+      setFilteredSubcategories([]);
+    }
+  }, [product.category_id, subcategories]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setProduct({ ...product, [e.target.name]: e.target.value });
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setImageFile(e.target.files[0]);
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      setImages([...images, event.target.files[0]]);
     }
+  };
+  const addImageInput = () => {
+    setImageInputs([...imageInputs, Date.now()]);
+  };
+
+  const removeLastInput = () => {
+    if (imageInputs.length > 1) {
+      setImageInputs(imageInputs.slice(0, -1));
+      setImages(images.slice(0, -1));
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages(images.filter((_, i) => i !== index));
   };
 
   const colors = [
@@ -147,10 +188,18 @@ const EditProductPage = () => {
   ];
 
   const materialTypes = [
-    "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Slate", "Travertine",
-    "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Tuff", "Felsite",
+    "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Quartz", "Travertine",
+    "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Terrazo", "Felsite",
     "Conglomerate", "Rhyolite", "Gypsum", "Andesite"
   ];
+
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUserToken(token);
+  }, []);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -162,6 +211,7 @@ const EditProductPage = () => {
     formData.append("product_video", product.product_video);
     formData.append("material_type", product.material_type);
     formData.append("color", product.color);
+    formData.append("stock", product.stock);
     formData.append("min_order", product.min_order.toString());
     formData.append("material_origin", product.material_origin);
     formData.append("province_city", product.province_city);
@@ -172,15 +222,20 @@ const EditProductPage = () => {
     formData.append("FOB_price", product.FOB_price);
     formData.append("subcategory_id", product.subcategory_id.toString());
     formData.append("category_id", product.category_id.toString());
+    formData.append("is_popular", product.is_popular);
+    formData.append("additonal_name", product.additonal_name);
 
-    if (imageFile) {
-      formData.append("product_image", imageFile);
-    }
+    // Append all selected images
+    images.forEach((file) => {
+      formData.append("images[]", file);
+    });
 
     try {
-      await axiosInstance.post(`/products/${id}`, formData, {
+      await axiosInstance.post(`/products/${product.id}`, formData, {
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "multipart/form-data",
+          Accept: "application/json",
         },
       });
       alert("Product updated successfully!");
@@ -212,27 +267,77 @@ const EditProductPage = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Description:</label>
           <textarea name="product_desc" value={product.product_desc} onChange={handleChange} placeholder="Description" className="border px-4 py-2 w-full h-32 resize-none" />
         </div>
+
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Current Image:</label>
-          {product.product_image && !imageFile && (
-            <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${product.product_image}`} alt="Current Product" className="w-24 h-24 object-cover mb-2" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">Images:</label>
+          {images.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-2">
+              {images.map((img, index) => (
+                <div key={index} className="relative">
+                  <img src={img instanceof File ? URL.createObjectURL(img) : `${process.env.NEXT_PUBLIC_API_URL}/storage/${img}`} alt={`preview-${index}`} className="w-20 h-20 object-cover rounded-md border" />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-0 right-0 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
           )}
-          {imageFile && (
-            <img src={URL.createObjectURL(imageFile)} alt="Preview" className="w-24 h-24 object-cover mb-2" />
-          )}
-          <input type="file" name="product_image" onChange={handleImageChange} className="w-full p-2 border rounded-md my-1 file:bg-blue-500 file:text-white 
-            file:py-1 file:px-3 file:rounded-md 
-            file:border-none file:cursor-pointer 
-            hover:file:bg-blue-600 transition duration-300" />
+
+          {imageInputs.map((inputId) => (
+            <input
+              key={inputId}
+              type="file"
+              onChange={handleImageChange}
+              className="w-full p-2 border rounded-md my-1 file:bg-blue-500 file:text-white file:py-1 file:px-3 file:rounded-md file:border-none file:cursor-pointer hover:file:bg-blue-600 transition duration-300"
+            />
+          ))}
+
+          <div className="mt-2 ms-2 flex gap-2">
+            <button
+              type="button"
+              onClick={addImageInput}
+              className="bg-green-500 text-white px-4 py-2 rounded-md text-sm"
+            >
+              + Add More
+            </button>
+            {imageInputs.length > 1 && (
+              <button
+                type="button"
+                onClick={removeLastInput}
+                className="bg-red-500 text-white px-4 py-2 rounded-md text-sm"
+              >
+                - Remove Last
+              </button>
+            )}
+          </div>
         </div>
+
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Video URL:</label>
           <input type="text" name="product_video" value={product.product_video} onChange={handleChange} placeholder="Video URL" className="border px-4 py-2 w-full" />
         </div>
         <div>
+          {/* Category Dropdown */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Category:</label>
-            <select name="category_id" value={product.category_id} onChange={handleChange} className="border px-4 py-2 w-full">
+            <select
+              name="category_id"
+              value={product.category_id}
+              onChange={(e) => {
+                const selectedCategoryId = Number(e.target.value);
+                setProduct({
+                  ...product,
+                  category_id: selectedCategoryId,
+                  subcategory_id: "", // Reset subcategory when category changes
+                });
+              }}
+              className="border px-4 py-2 w-full"
+            >
               <option value="">Select Category</option>
               {categories.map((cat) => (
                 <option key={cat.id} value={cat.id}>
@@ -241,15 +346,30 @@ const EditProductPage = () => {
               ))}
             </select>
           </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Select Subcategory:</label>
-            <select name="subcategory_id" value={product.subcategory_id} onChange={handleChange} className="border px-4 py-2 w-full">
+            <select
+              name="subcategory_id"
+              value={product.subcategory_id}
+              onChange={(e) =>
+                setProduct({
+                  ...product,
+                  subcategory_id: e.target.value === "" ? "" : Number(e.target.value),
+                })
+              }
+              className="border px-4 py-2 w-full"
+              disabled={!product.category_id}
+            >
               <option value="">Select Subcategory</option>
-              {subcategories.map((sub) => (
-                <option key={sub.id} value={sub.id}>{sub.subcategorie_name}</option>
+              {filteredSubcategories.map((sub) => (
+                <option key={sub.id} value={sub.id}>
+                  {sub.subcategorie_name}
+                </option>
               ))}
             </select>
           </div>
+
           <label className="block text-sm font-semibold text-gray-700 mb-2">Color:</label>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {colors.map((item) => (
@@ -291,6 +411,10 @@ const EditProductPage = () => {
           <input type="number" name="min_order" value={product.min_order} onChange={handleChange} placeholder="Minimum Order" className="border px-4 py-2 w-full" />
         </div>
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Stock:</label>
+          <input type="text" name="stock" value={product.stock} onChange={handleChange} placeholder="Stock" className="border px-4 py-2 w-full" />
+        </div>
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Material Origin:</label>
           <select className="w-full p-2 border rounded-md" value={product.material_origin} onChange={handleChange} name="material_origin" >
             {countries.map((country) => (
@@ -308,6 +432,13 @@ const EditProductPage = () => {
           <label className="block text-sm font-medium text-gray-700 mb-1">Port:</label>
           <input type="text" name="port" value={product.port} onChange={handleChange} placeholder="Port" className="border px-4 py-2 w-full" />
         </div>
+        <div className="w-full">
+          <label className="block text-sm font-medium text-gray-700 mb-2">Is Popular?</label>
+          <select value={product.is_popular} onChange={(e) => setProduct({ ...product, is_popular: e.target.value })} className="w-full p-2 border rounded-md" name="is_popular">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+          </select>
+        </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Grade:</label>
           <input type="text" name="grade" value={product.grade} onChange={handleChange} placeholder="Grade" className="border px-4 py-2 w-full" />
@@ -323,6 +454,10 @@ const EditProductPage = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">FOB Price:</label>
           <input type="text" name="FOB_price" value={product.FOB_price} onChange={handleChange} placeholder="FOB Price" className="border px-4 py-2 w-full" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Additional Name:</label>
+          <input type="text" name="additonal_name" value={product.additonal_name} onChange={handleChange} placeholder="Additonal Name" className="border px-4 py-2 w-full" />
         </div>
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">Update Product</button>
       </form>

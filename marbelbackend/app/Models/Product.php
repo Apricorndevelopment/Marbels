@@ -25,6 +25,9 @@ class Product extends Model
         'subcategory_id',
         'category_id',
         'is_popular',
+        'additonal_name',
+        'seller_id',
+        'stock',
     ];
 
     public function images()
@@ -35,5 +38,10 @@ class Product extends Model
     public function subcategory()
     {
         return $this->belongsTo(Subcategory::class, 'subcategory_id');
-    }    
+    }
+
+    public function seller()
+    {
+        return $this->belongsTo(User::class, 'seller_id');
+    }
 }

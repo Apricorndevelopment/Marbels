@@ -16,9 +16,13 @@ interface Subcategory {
   category_id: number;
 }
 
-export function Sidebar({ setActiveMarket }: { setActiveMarket: (content: string[] | null) => void }) {
-  const [isPermanent, setIsPermanent] = useState(false);
+export function Sidebar({
+  setActiveMarket,
+}: {
+  setActiveMarket: (content: Subcategory[] | null) => void;
+}) {
   const [markets, setMarkets] = useState<Category[]>([]);
+  const [permanentCategoryId, setPermanentCategoryId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
@@ -29,9 +33,13 @@ export function Sidebar({ setActiveMarket }: { setActiveMarket: (content: string
             const subRes = await axiosInstance.get<Subcategory[]>(
               `/subcategories/by-category/${category.id}`
             );
+            const subcategoriesWithCategory = subRes.data.map((sub) => ({
+              ...sub,
+              category_id: category.id,
+            }));
             return {
               ...category,
-              subcategories: subRes.data,
+              subcategories: subcategoriesWithCategory,
             };
           })
         );
@@ -52,15 +60,23 @@ export function Sidebar({ setActiveMarket }: { setActiveMarket: (content: string
           <div
             className="py-5 sm:py-3"
             key={market.id}
-            onMouseEnter={() => !isPermanent && setActiveMarket(market.subcategories.map(sub => sub.subcategorie_name))}
-            onMouseLeave={() => !isPermanent && setActiveMarket(null)}
-            onClick={() => {
-              if (isPermanent) {
+            onMouseEnter={() => {
+              if (permanentCategoryId === null) {
+                setActiveMarket(market.subcategories);
+              }
+            }}
+            onMouseLeave={() => {
+              if (permanentCategoryId === null) {
                 setActiveMarket(null);
-                setIsPermanent(false);
+              }
+            }}
+            onClick={() => {
+              if (permanentCategoryId === market.id) {
+                setPermanentCategoryId(null);
+                setActiveMarket(null);
               } else {
-                setActiveMarket(market.subcategories.map(sub => sub.subcategorie_name));
-                setIsPermanent(true);
+                setPermanentCategoryId(market.id);
+                setActiveMarket(market.subcategories);
               }
             }}
           >

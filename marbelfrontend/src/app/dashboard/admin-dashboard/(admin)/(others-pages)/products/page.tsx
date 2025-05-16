@@ -16,6 +16,12 @@ interface Product {
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const router = useRouter();
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUserToken(token);
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -35,17 +41,22 @@ const Products = () => {
     if (!confirmDelete) return;
 
     try {
-      await axiosInstance.delete(`/products/${id}`);
+      await axiosInstance.delete(`/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          Accept: "application/json",
+        },
+      });
       setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Failed to delete product:", error);
     }
   };
 
-  const handleEdit = (id: number) => {
-    router.push(`/dashboard/admin-dashboard/products/edit/${id}`);
+  const handleEdit = (slug: string) => {
+    router.push(`/dashboard/admin-dashboard/products/edit/${slug}`);
   };
-  
+
   return (
     <div className="p-6">
       <PageBreadcrumb pageTitle="Add Products" />
@@ -58,7 +69,7 @@ const Products = () => {
       </Link>
       <Link href="/dashboard/admin-dashboard/products/add-bulk-product">
         <button className="bg-green-500 text-white px-4 py-2 ms-4 rounded-md hover:bg-green-700 transition duration-200">
-          Add Bulk Product 
+          Add Bulk Product
         </button>
       </Link>
 
@@ -95,7 +106,7 @@ const Products = () => {
                   </td>
                   <td className="border px-4 py-2 space-x-2">
                     <button
-                      onClick={() => handleEdit(product.id)}
+                      onClick={() => handleEdit(product.product_slug)}
                       className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-300"
                     >
                       Edit

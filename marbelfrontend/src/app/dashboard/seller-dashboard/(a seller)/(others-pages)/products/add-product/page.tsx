@@ -2,18 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import axios from "axios";
-import axiosInstance from "../../../../../../../../utils/axiosInstance";
-
-interface Subcategory {
-  id: number;
-  subcategorie_name: string;
-}
+// import axiosInstance from "../../../../../../../../utils/axiosInstance";
 
 interface Category {
   id: number;
   categorie_name: string;
+}
+
+interface Subcategory {
+  id: number;
+  subcategorie_name: string;
+  category_id: number;
 }
 
 const AddProduct = () => {
@@ -22,17 +22,19 @@ const AddProduct = () => {
   const [images, setImages] = useState<File[]>([]);
   const [imageInputs, setImageInputs] = useState<number[]>([Date.now()]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [categoryId, setCategoryId] = useState("");
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
+  const [filteredSubcategories, setFilteredSubcategories] = useState<Subcategory[]>([]);
+  const [categoryId, setCategoryId] = useState("");
   const [subcategoryId, setSubcategoryId] = useState("");
   const [color, setColor] = useState("");
+  const [stock, setStock] = useState("");
   const [materialType, setMaterialType] = useState("");
   const [description, setDescription] = useState("");
-  // const [keywords, setKeywords] = useState("");
-  // const [tax, setTax] = useState("");
+  const [isPopular, setIsPopular] = useState<"1" | "0" | "">("");
   const [materialOrigin, setMaterialOrigin] = useState("");
   const [provinceCity, setProvinceCity] = useState("");
   const [order, setOrder] = useState("");
+  const [additonalname, setadditonalname] = useState("");
   const [video, setVideo] = useState("");
   const [form, setForm] = useState({
     grade: '',
@@ -70,6 +72,15 @@ const AddProduct = () => {
     fetchSubcategories();
   }, []);
 
+  useEffect(() => {
+    if (categoryId) {
+      const filtered = subcategories.filter((sub) => sub.category_id.toString() === categoryId);
+      setFilteredSubcategories(filtered);
+    } else {
+      setFilteredSubcategories([]);
+    }
+    setSubcategoryId(""); // reset subcategory when category changes
+  }, [categoryId, subcategories]);
 
   const router = useRouter();
 
@@ -81,9 +92,16 @@ const AddProduct = () => {
 
   const handleUpdatePorts = () => {
     const updatedPorts = [port1, port2, port3].filter((p) => p.trim() !== "");
-    setSelectedPort(updatedPorts[0] || "India"); // default back to India if none
+    setSelectedPort(updatedPorts[0] || "India");
     setShowModal(false);
   };
+
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+useEffect(() => {
+  const token = localStorage.getItem("token");
+  setUserToken(token);
+}, []);
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,19 +115,27 @@ const AddProduct = () => {
     const formData = new FormData();
     formData.append("product_name", name);
     formData.append("product_slug", slug);
+    // formData.append("product_image", imageFile);
     formData.append("category_id", categoryId);
     formData.append("subcategory_id", subcategoryId);
     formData.append("product_desc", description);
     formData.append("product_video", video);
     formData.append("material_type", materialType);
     formData.append("color", color);
+    formData.append("stock", stock);
     formData.append("min_order", order.toString());
     formData.append("material_origin", materialOrigin);
     formData.append("province_city", provinceCity);
-    // formData.append("keywords", keywords);
-    // formData.append("tax", tax);
+    formData.append("is_popular", isPopular);
+    formData.append("additonal_name", additonalname);
 
-    formData.append("product_image", images[0]); // ✅ only send the first image
+    if (images[0]) {
+      formData.append("product_image", images[0]);
+    }
+
+    images.slice(1).forEach((img) => {
+      formData.append("images[]", img);
+    });
 
     if (selectedPort) {
       formData.append("port", selectedPort);
@@ -121,12 +147,15 @@ const AddProduct = () => {
     formData.append("FOB_price", form.FOB_price);
 
     try {
-      const response = await axiosInstance.post("/products", formData, {
+
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/products`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
+          Authorization: `Bearer ${userToken}`,
         },
       });
+
 
       console.log("Product created successfully:", response.data);
       router.push("/dashboard/seller-dashboard/products");
@@ -183,15 +212,12 @@ const AddProduct = () => {
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="bg-white p-6 rounded-lg shadow-lg w-full">
-        <Link href="/dashboard/seller-dashboard/products">
-          <button className="bg-green-500 text-white py-2 px-5 text-xl">Go Back</button>
-        </Link>
         <h1 className="text-3xl font-bold mb-5 text-center">Add Product</h1>
         <form onSubmit={handleSubmit} className="space-y-4">
 
           {/* ✅ Product Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Product Name:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">* Product Name:</label>
             <input
               type="text"
               value={name}
@@ -203,7 +229,7 @@ const AddProduct = () => {
 
           {/* ✅ Slug */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Slug:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">* Slug:</label>
             <input
               type="text"
               value={slug}
@@ -214,7 +240,7 @@ const AddProduct = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">* Description:</label>
             <textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -225,7 +251,7 @@ const AddProduct = () => {
 
           {/* ✅ Images */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Images:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">* Images:</label>
             {images.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-2">
                 {images.map((img, index) => (
@@ -275,9 +301,8 @@ const AddProduct = () => {
             </div>
           </div>
 
-          {/* ✅ NEW: Product Video */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Video URL:</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">* Video URL:</label>
             <input
               type="text"
               value={video}
@@ -288,7 +313,7 @@ const AddProduct = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block mb-1 text-sm font-medium text-gray-700">Select Category:</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">* Select Category:</label>
             <select
               value={categoryId}
               onChange={(e) => setCategoryId(e.target.value)}
@@ -305,15 +330,16 @@ const AddProduct = () => {
           </div>
 
           <div className="mb-4">
-            <label className="block mb-1 text-sm font-medium text-gray-700">Select Subcategory:</label>
+            <label className="block mb-1 text-sm font-medium text-gray-700">* Select Subcategory:</label>
             <select
               value={subcategoryId}
               onChange={(e) => setSubcategoryId(e.target.value)}
               required
               className="w-full mt-2 p-2 border rounded-md"
+              disabled={!categoryId}
             >
               <option value="">Select a subcategory</option>
-              {subcategories.map((subcat) => (
+              {filteredSubcategories.map((subcat) => (
                 <option key={subcat.id} value={subcat.id}>
                   {subcat.subcategorie_name}
                 </option>
@@ -321,9 +347,8 @@ const AddProduct = () => {
             </select>
           </div>
 
-
           <div className="my-7 w-full max-w-5xl mx-auto">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Color:</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">* Color:</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
                 "Beige", "Black", "Blue", "Brown", "White", "Red", "Multicolor", "Green", "Grey",
@@ -345,11 +370,11 @@ const AddProduct = () => {
           </div>
 
           <div className="my-7">
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Material Type:</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">* Material Type:</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {[
-                "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Slate", "Travertine",
-                "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Tuff", "Felsite",
+                "Granite", "Marble", "Limestone", "Basalt", "Quartzite", "Sandstone", "Quartz", "Travertine",
+                "BlueStone", "Soapstone", "Others", "Onyx", "Alabaster", "Pumice", "Terrazo", "Felsite",
                 "Conglomerate", "Rhyolite", "Gypsum", "Andesite"
               ].map((item) => (
                 <label key={item} className="flex items-center space-x-2">
@@ -370,7 +395,7 @@ const AddProduct = () => {
 
           <div className="py-4 flex flex-col sm:flex-row gap-3">
             <div className="w-full">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Material Origin:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">* Material Origin:</label>
               <select
                 className="w-full p-2 border rounded-md"
                 value={materialOrigin}
@@ -388,7 +413,7 @@ const AddProduct = () => {
             </div>
 
             <div className="w-full">
-              <label className="block text-sm font-medium text-gray-700 mb-2">City/State:</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">* City/State:</label>
               <input
                 type="text"
                 value={provinceCity}
@@ -398,6 +423,31 @@ const AddProduct = () => {
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700 mb-2">* Stock:</label>
+              <input
+                type="text"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                name="stock"
+                required
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-semibold text-gray-700 mb-2">* Is Popular:</label>
+            <select
+              className="w-full p-2 border rounded-md"
+              value={isPopular}
+              onChange={(e) => setIsPopular(e.target.value as "1" | "0" | "")}
+              name="is_popular"
+              required>
+              <option value="">Select</option>
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
           </div>
 
 
@@ -405,7 +455,7 @@ const AddProduct = () => {
           <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Grade */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Grade:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">* Grade:</label>
               <select
                 className="w-full p-2 border rounded"
                 value={form.grade}
@@ -420,7 +470,7 @@ const AddProduct = () => {
 
             {/* Size */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Size:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">* Size:</label>
               <input
                 type="text"
                 className="w-full p-2 border rounded"
@@ -432,7 +482,7 @@ const AddProduct = () => {
 
             {/* Surface */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">Surface:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">* Surface:</label>
               <select
                 className="w-full p-2 border rounded"
                 value={form.surface}
@@ -447,7 +497,7 @@ const AddProduct = () => {
 
             {/* FOB Price */}
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">FOB Price:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-1">* FOB Price:</label>
               <input
                 type="number"
                 className="w-full p-2 border rounded"
@@ -461,7 +511,7 @@ const AddProduct = () => {
 
           <div className="py-4">
             <div className="mt-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Port:</label>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">* Port:</label>
               <select
                 className="w-full p-2 border rounded-md"
                 value={selectedPort}
@@ -537,6 +587,17 @@ const AddProduct = () => {
               type="number"
               value={order}
               onChange={(e) => setOrder((e.target.value))}
+              required
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">* Additional Name:</label>
+            <input
+              type="text"
+              value={additonalname}
+              onChange={(e) => setadditonalname((e.target.value))}
               required
               className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

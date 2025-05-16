@@ -10,7 +10,8 @@ import {
   HorizontaLDots,
   UserCircleIcon,
   PlusCircleIcon,
-  InquiryIcon
+  InquiryIcon,
+  BoxCubeIcon
 } from "../icons/index";
 
 type NavItem = {
@@ -28,13 +29,23 @@ const navItems: NavItem[] = [
   },
   {
     icon: <UserCircleIcon />,
-    name: "User Profile",
+    name: "Admin Profile",
     path: "/dashboard/admin-dashboard/profile",
+  },
+  {
+    icon: <BoxCubeIcon />,
+    name: "Stock",
+    path: "/dashboard/admin-dashboard/stock",
   },
   {
     icon: <InquiryIcon />,
     name: "Enquiries",
     path: "/dashboard/admin-dashboard/enquiry",
+  },
+  {
+    icon: <InquiryIcon />,
+    name: "Quotations",
+    path: "/dashboard/admin-dashboard/quatations",
   },
   {
     icon: <PlusCircleIcon />,
@@ -252,7 +263,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-        <Link href="/">
+        <Link href="/dashboard/admin-dashboard">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <div className="flex gap-3 justify-center items-center">

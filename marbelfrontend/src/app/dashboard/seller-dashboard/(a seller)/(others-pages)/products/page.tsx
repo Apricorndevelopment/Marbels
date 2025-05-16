@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import PageBreadcrumb from "@/components/common/PageBreadCrumb";
 import { useRouter } from "next/navigation";
 import axiosInstance from "../../../../../../../utils/axiosInstance";
@@ -15,99 +14,123 @@ interface Product {
 
 const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    fetchProducts();
+    const sellerId = localStorage.getItem("seller_id");
+
+    if (!sellerId) {
+      setError("Seller ID not found. Please log in again.");
+      return;
+    }
+
+    fetchProducts(sellerId);
   }, []);
 
-  const fetchProducts = async () => {
+  const fetchProducts = async (sellerId: string) => {
     try {
-      const res = await axiosInstance.get("/products");
+      const res = await axiosInstance.get(`/seller/products?seller_id=${sellerId}`);
       setProducts(res.data);
     } catch (error) {
       console.error("Failed to fetch products:", error);
+      setError("Something went wrong while fetching products.");
     }
   };
+
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUserToken(token);
+  }, []);
+
 
   const handleDelete = async (id: number) => {
     const confirmDelete = confirm("Are you sure you want to delete this product?");
     if (!confirmDelete) return;
 
     try {
-      await axiosInstance.delete(`/products/${id}`);
+      await axiosInstance.delete(`/products/${id}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+          Accept: "application/json",
+        },
+      });
       setProducts(products.filter((product) => product.id !== id));
     } catch (error) {
       console.error("Failed to delete product:", error);
     }
   };
 
-  const handleEdit = (id: number) => {
-    router.push(`/dashboard/seller-dashboard/products/edit/${id}`);
+  const handleEdit = (slug: string) => {
+    router.push(`/dashboard/seller-dashboard/products/edit/${slug}`);
   };
-  
+
   return (
     <div className="p-6">
       <PageBreadcrumb pageTitle="Add Products" />
       <h1 className="text-2xl font-bold mb-4">Product Section</h1>
 
-      <Link href="/dashboard/seller-dashboard/products/add-product">
-        <button className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition duration-300">
-          Add Product
-        </button>
-      </Link>
-
-      <div className="mt-8 overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border px-4 py-2">ID</th>
-              <th className="border px-4 py-2">Name</th>
-              <th className="border px-4 py-2">Slug</th>
-              <th className="border px-4 py-2">Image</th>
-              <th className="border px-4 py-2">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="text-center py-4">
-                  No products found.
-                </td>
+      {error ? (
+        <p className="text-red-500">{error}</p>
+      ) : (
+        <div className="mt-8 overflow-x-auto">
+          <table className="min-w-full bg-white border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border px-4 py-2">ID</th>
+                <th className="border px-4 py-2">Name</th>
+                <th className="border px-4 py-2">Slug</th>
+                <th className="border px-4 py-2">Image</th>
+                <th className="border px-4 py-2">Action</th>
               </tr>
-            ) : (
-              products.map((product, index) => (
-                <tr key={product.id} className="text-center">
-                  <td className="border px-4 py-2">{index + 1}</td>
-                  <td className="border px-4 py-2">{product.product_name}</td>
-                  <td className="border px-4 py-2">{product.product_slug}</td>
-                  <td className="border px-4 py-2">
-                    {product.product_image ? (
-                      <img src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${product.product_image}`} alt={product.product_name} className="w-16 h-16 object-cover rounded-md mx-auto" />
-                    ) : (
-                      "No Image"
-                    )}
-                  </td>
-                  <td className="border px-4 py-2 space-x-2">
-                    <button
-                      onClick={() => handleEdit(product.id)}
-                      className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-300"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(product.id)}
-                      className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-300"
-                    >
-                      Delete
-                    </button>
+            </thead>
+            <tbody>
+              {products.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-4">
+                    No products found.
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                products.map((product, index) => (
+                  <tr key={product.id} className="text-center">
+                    <td className="border px-4 py-2">{index + 1}</td>
+                    <td className="border px-4 py-2">{product.product_name}</td>
+                    <td className="border px-4 py-2">{product.product_slug}</td>
+                    <td className="border px-4 py-2">
+                      {product.product_image ? (
+                        <img
+                          src={`${process.env.NEXT_PUBLIC_API_URL}/storage/${product.product_image}`}
+                          alt={product.product_name}
+                          className="w-16 h-16 object-cover rounded-md mx-auto"
+                        />
+                      ) : (
+                        "No Image"
+                      )}
+                    </td>
+                    <td className="border px-4 py-2 space-x-2">
+                      <button
+                        onClick={() => handleEdit(product.product_slug)}
+                        className="bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600 transition duration-300"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDelete(product.id)}
+                        className="bg-red-500 text-white px-3 py-1 rounded-md hover:bg-red-600 transition duration-300"
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 };

@@ -26,6 +26,7 @@ interface Product {
   material_type: string;
   color: string;
   min_order: number;
+  stock: string;
   material_origin: string;
   province_city: string;
   port: string;
@@ -36,6 +37,7 @@ interface Product {
   subcategory_id: number | "";
   category_id: number | "";
   is_popular: string;
+  additonal_name: string;
 }
 
 const countries = [
@@ -48,7 +50,7 @@ const countries = [
 ];
 
 const EditProductPage = () => {
-  const { id } = useParams();
+  const { slug } = useParams();
   const router = useRouter();
 
   const [product, setProduct] = useState<Product>({
@@ -60,6 +62,7 @@ const EditProductPage = () => {
     product_image: "",
     material_type: "",
     color: "",
+    stock:"",
     min_order: 0,
     material_origin: "",
     province_city: "",
@@ -71,6 +74,7 @@ const EditProductPage = () => {
     subcategory_id: "",
     category_id: "",
     is_popular: "0",
+    additonal_name: "",
   });
 
   const [categories, setCategories] = useState<Category[]>([]);
@@ -84,7 +88,7 @@ const EditProductPage = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await axiosInstance.get(`/products/${id}`);
+        const res = await axiosInstance.get(`/products/${slug}`);
         const fetchedProduct = res.data;
         setProduct({
           id: fetchedProduct.id,
@@ -95,6 +99,7 @@ const EditProductPage = () => {
           product_image: fetchedProduct.product_image || "",
           material_type: fetchedProduct.material_type || "",
           color: fetchedProduct.color || "",
+          stock: fetchedProduct.stock || "",
           min_order: fetchedProduct.min_order || 0,
           material_origin: fetchedProduct.material_origin || "",
           province_city: fetchedProduct.province_city || "",
@@ -103,6 +108,7 @@ const EditProductPage = () => {
           size: fetchedProduct.size || "",
           surface: fetchedProduct.surface || "",
           FOB_price: fetchedProduct.FOB_price || "",
+          additonal_name: fetchedProduct.additonal_name || "",
           subcategory_id: Number(fetchedProduct.subcategory_id) || 0,
           category_id: Number(fetchedProduct.category_id) || 0,
           is_popular: fetchedProduct.is_popular ?? "0",
@@ -139,7 +145,7 @@ const EditProductPage = () => {
     fetchProduct();
     fetchCategories();
     fetchSubcategories();
-  }, [id]);
+  }, [slug]);
 
   useEffect(() => {
     if (product.category_id) {
@@ -187,6 +193,13 @@ const EditProductPage = () => {
     "Conglomerate", "Rhyolite", "Gypsum", "Andesite"
   ];
 
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUserToken(token);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const formData = new FormData();
@@ -197,6 +210,7 @@ const EditProductPage = () => {
     formData.append("product_video", product.product_video);
     formData.append("material_type", product.material_type);
     formData.append("color", product.color);
+    formData.append("stock", product.stock);
     formData.append("min_order", product.min_order.toString());
     formData.append("material_origin", product.material_origin);
     formData.append("province_city", product.province_city);
@@ -208,6 +222,7 @@ const EditProductPage = () => {
     formData.append("subcategory_id", product.subcategory_id.toString());
     formData.append("category_id", product.category_id.toString());
     formData.append("is_popular", product.is_popular);
+    formData.append("additonal_name", product.additonal_name);
 
     // Append all selected images
     images.forEach((file) => {
@@ -215,9 +230,11 @@ const EditProductPage = () => {
     });
 
     try {
-      await axiosInstance.post(`/products/${id}`, formData, {
+      await axiosInstance.post(`/products/${product.id}`, formData, {
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "multipart/form-data",
+          Accept: "application/json",
         },
       });
       alert("Product updated successfully!");
@@ -257,7 +274,7 @@ const EditProductPage = () => {
             <div className="flex flex-wrap gap-2 mb-2">
               {images.map((img, index) => (
                 <div key={index} className="relative">
-                  <img src={img instanceof File ? URL.createObjectURL(img) : `${process.env.NEXT_PUBLIC_API_URL}/storage/${img}` } alt={`preview-${index}`} className="w-20 h-20 object-cover rounded-md border"/>
+                  <img src={img instanceof File ? URL.createObjectURL(img) : `${process.env.NEXT_PUBLIC_API_URL}/storage/${img}`} alt={`preview-${index}`} className="w-20 h-20 object-cover rounded-md border" />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
@@ -393,6 +410,10 @@ const EditProductPage = () => {
           <input type="number" name="min_order" value={product.min_order} onChange={handleChange} placeholder="Minimum Order" className="border px-4 py-2 w-full" />
         </div>
         <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Stock:</label>
+          <input type="text" name="stock" value={product.stock} onChange={handleChange} placeholder="Stock" className="border px-4 py-2 w-full" />
+        </div>
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Material Origin:</label>
           <select className="w-full p-2 border rounded-md" value={product.material_origin} onChange={handleChange} name="material_origin" >
             {countries.map((country) => (
@@ -432,6 +453,10 @@ const EditProductPage = () => {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">FOB Price:</label>
           <input type="text" name="FOB_price" value={product.FOB_price} onChange={handleChange} placeholder="FOB Price" className="border px-4 py-2 w-full" />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Additional Name:</label>
+          <input type="text" name="additonal_name" value={product.additonal_name} onChange={handleChange} placeholder="Additonal Name" className="border px-4 py-2 w-full" />
         </div>
         <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition duration-300">Update Product</button>
       </form>

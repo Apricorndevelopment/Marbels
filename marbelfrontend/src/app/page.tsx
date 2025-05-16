@@ -17,9 +17,41 @@ type Category = {
   image_url: string;
 };
 
+interface Subcategory {
+  id: number;
+  subcategorie_name: string;
+  category_id: number;
+}
+
 export default function Home() {
-  const [activeMarket, setActiveMarket] = useState<string[] | null>(null);
+  const [activeMarket, setActiveMarket] = useState<Subcategory[] | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [requirement, setRequirement] = useState("");
+  const [qnt, setQnt] = useState("");
+  const [unit, setUnit] = useState("Pieces");
+
+  const handleSubmit = async () => {
+    if (!requirement || !qnt || !unit) {
+      alert("Please fill all fields.");
+      return;
+    }
+
+    try {
+      await axiosInstance.post(`/quotations`, {
+        requirement,
+        qnt,
+        unit,
+      });
+      alert("Quotation sent successfully!");
+      // Optional: clear fields
+      setRequirement("");
+      setQnt("");
+      setUnit("Pieces");
+    } catch (error) {
+      console.error("Failed to submit quotation", error);
+      alert("Something went wrong. Please try again.");
+    }
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -28,11 +60,11 @@ export default function Home() {
     };
     fetchCategories();
   }, []);
-
+  console.log(activeMarket); // Add this line before rendering the categories
 
   return (
     <>
-      <div className="cont1 flex pt-14 pb-12 gap-4 sm:gap-16 lg:gap-7 xl:gap-5 2xl:gap-10 bg-white border shadow-xl">
+      <div className="cont1 flex pt-14 pb-12 gap-2 sm:gap-16 lg:gap-7 xl:gap-5 2xl:gap-10 bg-white border shadow-xl">
         <Sidebar setActiveMarket={setActiveMarket} />
 
         <div className="flex gap-0 xl:gap-4 flex-wrap relative">
@@ -50,25 +82,32 @@ export default function Home() {
             <h4 className="font-semibold xl:mb-6">Sponsors</h4>
             <div className="flex flex-col sm:flex-row gap-4 2xl:gap-7 justify-center items-center py-4">
               <div className="lg:w-[150px] xl:w-[185px] 2xl:w-[235px]">
-              <Image src="/sponsor3.png" alt="Logo" className="border border-gray-200 p-1 w-full h-full object-cover" width={100} height={100} />
+                <Image src="/sponsor3.png" alt="Logo" className="border border-gray-200 p-1 w-full h-full object-cover" width={100} height={100} />
               </div>
               <div className="lg:w-[150px] xl:w-[185px] 2xl:w-[235px]">
-              <Image src="/sponsor1.png" alt="Logo" className="border border-gray-200 p-1 w-full h-full object-cover" width={100} height={100} />
+                <Image src="/sponsor1.png" alt="Logo" className="border border-gray-200 p-1 w-full h-full object-cover" width={100} height={100} />
               </div>
-              {/* <Image src="/sponsor2.png" alt="Logo" className="border border-gray-200 p-1" width={100} height={100} /> */}
             </div>
 
           </div>
           {activeMarket && (
-            <div className="absolute inset-0 bg-white border flex flex-col px-6 py-4 mb-4">
-              <h4 className="text-3xl font-bold mb-6">Categories</h4>
-              <ul className="list-disc text-lg space-y-3 grid grid-cols-2 md:grid-cols-3 gap-7 px-8">
-                {activeMarket.map((item, index) => (
-                  <li key={index} className="text-gray-700 hover:text-black text-2xl cursor-pointer">
-                    {item}
-                  </li>
-                ))}
-              </ul>
+            <div className="absolute inset-0 bg-white border flex flex-col px-2 sm:px-6 sm:py-4 mb-4 z-5">
+              <h4 className="text-xl sm:text-3xl font-bold mb-3 sm:mb-6">Categories</h4>
+
+              <div className="overflow-y-auto max-h-[400px] pr-2">
+                <ul className="list-none sm:list-disc space-y-1 sm:space-y-2 md:space-y-3 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 sm:gap-5 md:gap-7 px-3 sm:px-8">
+                  {activeMarket.map((item) => (
+                    <li
+                      key={item.id}
+                      className="text-gray-700 hover:text-black text-lg sm:text-xl md:text-2xl cursor-pointer"
+                    >
+                      <Link href={`/products?category_id=${item.category_id}&subcategory_id=${item.id}`}>
+                        {item.subcategorie_name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           )}
         </div>
@@ -94,39 +133,46 @@ export default function Home() {
         <div className="w-full md:w-1/2 lg:w-3/4">
           <div className="flex flex-wrap ">
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel2.jpg" name="Stone Blocks" />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel2.jpg" name="Stone Blocks" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel4.jpg" name="Stone tiles" />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel4.jpg" name="Stone tiles" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard
-                icon="/mar_pics/marbel3.jpg"
-                name="Interioe stone products"
-              />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel3.jpg" name="Interioe stone products" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel2.jpg" name="kitchen sink" />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel2.jpg" name="kitchen sink" />
+              </Link>
             </div>
           </div>
           <div className="flex flex-wrap">
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel1.jpg" name="stone sculpture" />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel1.jpg" name="stone sculpture" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard
-                icon="/mar_pics/marbel5.jpg"
-                name="building stone ledge"
-              />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel5.jpg" name="building stone ledge" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel4.jpg" name="gravestone" />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel4.jpg" name="gravestone" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard
-                icon="/mar_pics/marbel3.jpg"
-                name="landscaping stones"
-              />
+              <Link href={"/products?category_id=1"}>
+                <StoneCard icon="/mar_pics/marbel3.jpg" name="landscaping stones" />
+              </Link>
             </div>
           </div>
         </div>
@@ -214,33 +260,41 @@ export default function Home() {
         <div className="w-full md:w-1/2 lg:w-3/4">
           <div className="flex flex-wrap">
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel3.jpg" name="Stone Blocks" />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel3.jpg" name="Stone Blocks" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel2.jpg" name="Stone tiles" />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel2.jpg" name="Stone tiles" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard
-                icon="/mar_pics/marbel5.jpg"
-                name="Interioe stone products"
-              />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel5.jpg" name="Interioe stone products" />
+              </Link>
             </div>
             <div className="w-1/2 lg:w-1/4">
-              <StoneCard icon="/mar_pics/marbel3.jpg" name="kitchen sink" />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel3.jpg" name="kitchen sink" />
+              </Link>
             </div>
           </div>
           <div className="flex">
             <div className=" w-1/3">
-              <StoneCard icon="/mar_pics/marbel4.jpg" name="stone sculpture" />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel4.jpg" name="stone sculpture" />
+              </Link>
             </div>
             <div className=" w-1/3">
-              <StoneCard
-                icon="/mar_pics/marbel5.jpg"
-                name="building stone ledge"
-              />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel5.jpg" name="building stone ledge" />
+              </Link>
             </div>
             <div className=" w-1/3">
-              <StoneCard icon="/mar_pics/marbel1.jpg" name="gravestone" />
+              <Link href={"/products?category_id=2"}>
+                <StoneCard icon="/mar_pics/marbel1.jpg" name="gravestone" />
+              </Link>
             </div>
           </div>
         </div>
@@ -271,7 +325,9 @@ export default function Home() {
           <input
             type="text"
             placeholder="What are you looking for.."
-            className="sm:w-full p-3 mt-4 text-gray-700 border bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={requirement}
+            onChange={(e) => setRequirement(e.target.value)}
+            className="sm:w-full p-3 mt-4 border text-gray-700 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
           <p className="text-red-500 text-[12px] sm:text-sm mt-1">
             Please input the name of product you need!
@@ -280,9 +336,15 @@ export default function Home() {
             <input
               type="number"
               placeholder="Quantity"
+              value={qnt}
+              onChange={(e) => setQnt(e.target.value)}
               className="flex-1 w-full p-3 text-gray-700 border bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            <select className="p-3 text-gray-700 border bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <select
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              className="p-3 text-gray-700 border bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
               <option>Pieces</option>
               <option>Boxes</option>
               <option>Foot</option>
@@ -292,7 +354,10 @@ export default function Home() {
           <p className="text-red-500 text-[13px] sm:text-sm mt-1">
             Please Input your Need Product Number!
           </p>
-          <button className="w-full mt-4 p-3 text-white bg-blue-600 rounded-md hover:bg-blue-700 transition">
+          <button
+            onClick={handleSubmit}
+            className="w-full mt-4 p-3 text-black bg-yellow-400 rounded-md hover:bg-yellow-300 transition"
+          >
             Request For Quotation
           </button>
         </div>

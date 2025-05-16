@@ -5,12 +5,8 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSidebar } from "../context/SidebarContext";
 import {
-  CalenderIcon,
-  ChevronDownIcon,
+   ChevronDownIcon,
   HorizontaLDots,
-  ListIcon,
-  PageIcon,
-  TableIcon,
   UserCircleIcon,
 } from "../icons/index";
 
@@ -26,41 +22,6 @@ const navItems: NavItem[] = [
     icon: <UserCircleIcon />,
     name: "User Profile",
     path: "/dashboard/user-dashboard",
-  },
-  {
-    icon: <CalenderIcon />,
-    name: "Calendar",
-    path: "/dashboard/user-dashboard/calendar",
-  },
-  {
-    name: "Forms",
-    icon: <ListIcon />,
-    subItems: [
-      {
-        name: "Form Elements",
-        path: "/dashboard/user-dashboard/form-elements",
-        pro: false,
-      },
-    ],
-  },
-  {
-    name: "Tables",
-    icon: <TableIcon />,
-    subItems: [
-      {
-        name: "Basic Tables",
-        path: "/dashboard/user-dashboard/basic-tables",
-        pro: false,
-      },
-    ],
-  },
-  {
-    name: "Pages",
-    icon: <PageIcon />,
-    subItems: [
-      { name: "Blank Page", path: "/blank", pro: false },
-      { name: "404 Error", path: "/dashboard/user-dashboard/error-404", pro: false },
-    ],
   },
 ];
 
@@ -241,7 +202,7 @@ const AppSidebar: React.FC = () => {
           !isExpanded && !isHovered ? "lg:justify-center" : "justify-start"
         }`}
       >
-         <Link href="/">
+         <Link href="/dashboard/user-dashhboard">
           {isExpanded || isHovered || isMobileOpen ? (
             <>
               <div className="flex gap-3 justify-center items-center">

@@ -22,11 +22,11 @@ export function Req({ req }: Request) {
         <span className="font-semibold">Message: </span>
         <span>{req.message || "No message provided"}</span>
       </div>
-      <div className="flex flex-wrap justify-between items-center mt-4 pt-2 border-t-[1px] border-dotted border-gray-300">
+      {/* <div className="flex flex-wrap justify-between items-center mt-4 pt-2 border-t-[1px] border-dotted border-gray-300">
         <button className="mt-3 bg-yellow-400 text-black py-2 px-6 rounded-md hover:bg-yellow-500 transition duration-200 ease-in-out">
           Respond Now
         </button>
-      </div>
+      </div> */}
     </div>
   );
 }

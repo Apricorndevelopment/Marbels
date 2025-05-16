@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState , useEffect} from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { AxiosError } from "axios";
 import axiosInstance from "../../../utils/axiosInstance";
-import { useSearchParams } from "next/navigation";
 
 interface EnquiryFormData {
   name: string;
@@ -18,7 +18,10 @@ interface EnquiryResponse {
   data: EnquiryFormData;
 }
 
-export default function EnquiryPage() {
+function EnquiryFormContent() {
+  const searchParams = useSearchParams();
+  const productFromQuery = searchParams.get("product");
+
   const [formData, setFormData] = useState<EnquiryFormData>({
     name: "",
     email: "",
@@ -30,14 +33,12 @@ export default function EnquiryPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string>("");
-  const searchParams = useSearchParams();
-const productFromQuery = searchParams.get("product");
 
-useEffect(() => {
-  if (productFromQuery) {
-    setFormData((prev) => ({ ...prev, product: productFromQuery }));
-  }
-}, [productFromQuery]);
+  useEffect(() => {
+    if (productFromQuery) {
+      setFormData((prev) => ({ ...prev, product: productFromQuery }));
+    }
+  }, [productFromQuery]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -147,5 +148,13 @@ useEffect(() => {
         {errorMessage && <p className="text-red-600 text-sm mt-2">{errorMessage}</p>}
       </form>
     </div>
+  );
+}
+
+export default function EnquiryPage() {
+  return (
+    <Suspense fallback={<div>Loading form...</div>}>
+      <EnquiryFormContent />
+    </Suspense>
   );
 }

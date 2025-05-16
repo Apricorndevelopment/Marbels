@@ -11,6 +11,9 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\OTPController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\Api\UploadCsvApiController;
+use App\Http\Controllers\Api\CompanyController;
+use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\UploadCsvController;
 use App\Models\Enquire;
 
 Route::get('/user', function (Request $request) {
@@ -21,15 +24,21 @@ Route::post('/login', [AuthController::class, 'login'])->name('login');
 Route::post('/send-otp-email', [AuthController::class, 'sendOtpToEmail']);
 Route::post('/forgot-password', [AuthController::class, 'forgotPassword']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::put('/user/update', [AuthController::class, 'updateProfile']);
+
+// Route::middleware('jwt.auth')->put('/user/update', [AuthController::class, 'updateProfile']);
 
 Route::get('/dashboard', [AuthController::class, 'dashboard']);
+Route::get('/stock',[AuthController::class,'stock']);
 Route::post('/logout', [AuthController::class, 'logout']);
+
 // category api----------------------
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::post('/categories', [CategoryController::class, 'store']);
 Route::get('/categories/{id}', [CategoryController::class, 'show']);
 Route::put('/categories/{id}', [CategoryController::class, 'update']);
 Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+
 // subcategory api----------------------
 Route::get('/subcategories', [SubcategoryController::class, 'index']);
 Route::post('/subcategories', [SubCategoryController::class, 'store']);
@@ -39,24 +48,39 @@ Route::delete('/subcategories/{id}', [SubCategoryController::class, 'destroy']);
 Route::get('/subcategories/by-category/{categoryId}', [SubcategoryController::class, 'getByCategory']);
 Route::get('/products/related/{subcategory_id}', [ProductController::class, 'relatedProducts']);
 
-
 // product api routes------------
-Route::prefix('products')->group(function () {
+// Route::prefix('products')->group(function () {
 
+//     Route::get('/', [ProductController::class, 'index']);
+//     Route::get('popular', [ProductController::class, 'popular']);
+//     Route::get('color/{color}', [ProductController::class, 'getByColor']);
+//     Route::post('/', [ProductController::class, 'store']);
+//     Route::get('{slug}', [ProductController::class, 'show']);
+//     Route::put('{id}', [ProductController::class, 'update']);
+//     Route::delete('{id}', [ProductController::class, 'destroy']);
+// });
+
+Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
     Route::get('popular', [ProductController::class, 'popular']);
     Route::get('color/{color}', [ProductController::class, 'getByColor']);
-    Route::post('/', [ProductController::class, 'store']);
-    // Route::get('{id}', [ProductController::class, 'show']);
     Route::get('{slug}', [ProductController::class, 'show']);
-    Route::put('{id}', [ProductController::class, 'update']);
-    Route::delete('{id}', [ProductController::class, 'destroy']);
+
+    Route::middleware('auth:api')->group(function () {
+        Route::post('/', [ProductController::class, 'store']);
+        Route::put('{id}', [ProductController::class, 'update']);
+        Route::delete('{id}', [ProductController::class, 'destroy']);
+    });
 });
+Route::get('/admin/products', [ProductController::class, 'adminproduct']);
+Route::get('/seller/products', [ProductController::class, 'sellerproduct']);
+
 // Enquire----------
 Route::get('/enquiries', [EnquireController::class, 'index']); // Get all
 Route::post('/enquiries', [EnquireController::class, 'store']); // Store new
 Route::get('/enquiries/{id}', [EnquireController::class, 'show']); // Get by ID
 Route::delete('/enquiries/{id}', [EnquireController::class, 'destroy']); // Delete by ID
+
 Route::prefix('admin')->group(function () {
     Route::get('/users', [UserController::class, 'getAllUsers']);
     Route::get('/sellers', [UserController::class, 'getAllSeller']);
@@ -72,4 +96,14 @@ Route::get('/blogs/{id}', [BlogController::class, 'show']);
 Route::post('/blogs', [BlogController::class, 'store']);
 Route::put('/blogs/{id}', [BlogController::class, 'update']);
 Route::delete('/blogs/{id}', [BlogController::class, 'destroy']);
-Route::post('/upload-csv-api',[UploadCsvApiController::class,'uploadCsv']);
+// Route::post('/upload-csv-api', [UploadCsvApiController::class, 'uploadCsv']);
+Route::post('/upload-csv', [UploadCsvController::class, 'uploadCsv']);
+
+// company
+Route::get('/companies/{id}', [CompanyController::class, 'index']);
+Route::post('/companies', [CompanyController::class, 'store']);
+Route::put('/companies/{id}', [CompanyController::class, 'update']);
+
+// quotations----
+Route::get('/quotations', [QuotationController::class, 'index']);
+Route::post('/quotations', [QuotationController::class, 'store']);

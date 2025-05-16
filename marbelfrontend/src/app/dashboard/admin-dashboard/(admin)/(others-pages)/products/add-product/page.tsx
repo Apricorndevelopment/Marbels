@@ -28,6 +28,7 @@ const AddProduct = () => {
   const [categoryId, setCategoryId] = useState("");
   const [subcategoryId, setSubcategoryId] = useState("");
   const [color, setColor] = useState("");
+  const [stock, setStock] = useState("");
   const [materialType, setMaterialType] = useState("");
   const [description, setDescription] = useState("");
   // const [keywords, setKeywords] = useState("");
@@ -36,6 +37,7 @@ const AddProduct = () => {
   const [materialOrigin, setMaterialOrigin] = useState("");
   const [provinceCity, setProvinceCity] = useState("");
   const [order, setOrder] = useState("");
+  const [additonalname, setadditonalname] = useState("");
   const [video, setVideo] = useState("");
   const [form, setForm] = useState({
     grade: '',
@@ -97,6 +99,12 @@ const AddProduct = () => {
     setShowModal(false);
   };
 
+  const [userToken, setUserToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setUserToken(token);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -115,10 +123,12 @@ const AddProduct = () => {
     formData.append("product_video", video);
     formData.append("material_type", materialType);
     formData.append("color", color);
+    formData.append("stock", stock);
     formData.append("min_order", order.toString());
     formData.append("material_origin", materialOrigin);
     formData.append("province_city", provinceCity);
     formData.append("is_popular", isPopular);
+    formData.append("additonal_name", additonalname);
     // formData.append("keywords", keywords);
     // formData.append("tax", tax);
 
@@ -144,6 +154,7 @@ const AddProduct = () => {
     try {
       const response = await axiosInstance.post("/products", formData, {
         headers: {
+          Authorization: `Bearer ${userToken}`,
           "Content-Type": "multipart/form-data",
           Accept: "application/json",
         },
@@ -418,6 +429,17 @@ const AddProduct = () => {
                 className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
+            <div className="w-full">
+              <label className="block text-sm font-medium text-gray-700 mb-2">In Stock:</label>
+              <input
+                type="string"
+                value={stock}
+                onChange={(e) => setStock(e.target.value)}
+                name="stock"
+                required
+                className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
           </div>
 
           <div className="w-full">
@@ -571,6 +593,17 @@ const AddProduct = () => {
               type="number"
               value={order}
               onChange={(e) => setOrder((e.target.value))}
+              required
+              className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+
+          <div className="w-full">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Additional Name:</label>
+            <input
+              type="text"
+              value={additonalname}
+              onChange={(e) => setadditonalname((e.target.value))}
               required
               className="w-full p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

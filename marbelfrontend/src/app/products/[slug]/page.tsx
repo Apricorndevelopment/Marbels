@@ -21,6 +21,7 @@ interface Product {
   surface: string;
   FOB_price: string;
   grade: string;
+  additonal_name: string;
   subcategory_id: number;
 }
 
@@ -78,29 +79,28 @@ export default function MarbleDetailPage() {
         <div className="flex flex-col gap-4 h-[500px]">
           {/* Highlight Table-like Info */}
           <div className="border border-gray-300 rounded-xl overflow-hidden shadow-md sm:h-[88px]">
-            <div className="grid grid-cols-4 text-sm bg-gray-100 font-semibold text-gray-700">
+            <div className="grid grid-cols-3 text-sm bg-gray-100 font-semibold text-gray-700">
               <div className="p-2 sm:p-3 border-r">Grade</div>
               <div className="p-2 sm:p-3 border-r">Size</div>
-              <div className="p-2 sm:p-3 border-r">Surface</div>
-              <div className="p-2 sm:p-3">FOB Price</div>
+              <div className="p-2 sm:p-3">Surface</div>
             </div>
-            <div className="grid grid-cols-4 text-sm text-gray-800 bg-white">
+            <div className="grid grid-cols-3 text-sm text-gray-800 bg-white">
               <div className="p-2 sm:p-3 border-t border-r">{product.grade}</div>
               <div className="p-2 sm:p-3 border-t border-r">{product.size}</div>
-              <div className="p-2 sm:p-3 border-t border-r">{product.surface}</div>
-              <div className="p-2 sm:p-3 border-t text-green-700 font-semibold">{product.FOB_price}</div>
+              <div className="p-2 sm:p-3 border-t">{product.surface}</div>
             </div>
           </div>
 
           {/* Details Section */}
           <div className="bg-white rounded-xl border border-gray-300 shadow-lg p-6 space-y-3 overflow-y-auto text-gray-700 h-[345px]">
-            <p><span className="font-semibold">Description:</span> {product.product_desc}</p>
             <p><span className="font-semibold">Material:</span> {product.material_type}</p>
             <p><span className="font-semibold">Color:</span> {product.color}</p>
-            <p><span className="font-semibold">Minimum Order:</span> {product.min_order}</p>
-            <p><span className="font-semibold">Port:</span> {product.port}</p>
+            {/* <p><span className="font-semibold">Minimum Order:</span> {product.min_order}</p> */}
+            {/* <p><span className="font-semibold">Port:</span> {product.port}</p> */}
             <p><span className="font-semibold">Origin:</span> {product.material_origin}</p>
-            <p><span className="font-semibold">Province/City:</span> {product.province_city}</p>
+            <p><span className="font-semibold">Additional Name:</span> {product.additonal_name}</p>
+            <p><span className="font-semibold">Description:</span> {product.product_desc}</p>
+            {/* <p><span className="font-semibold">Province/City:</span> {product.province_city}</p> */}
           </div>
 
           {/* Enquiry Button */}
